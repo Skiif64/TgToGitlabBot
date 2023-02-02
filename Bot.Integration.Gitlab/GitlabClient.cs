@@ -15,7 +15,7 @@ public class GitlabClient : IGitlabClient
         
     }
 
-    public async Task SendAsync(IGitlabRequest request, CancellationToken cancellationToken)
+    public async Task<bool> SendAsync(IGitlabRequest request, CancellationToken cancellationToken)
     {
         
         var requestMessage = new HttpRequestMessage
@@ -27,5 +27,6 @@ public class GitlabClient : IGitlabClient
         if (request.AccessToken != null)
             requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+        return response.IsSuccessStatusCode;
     }
 }

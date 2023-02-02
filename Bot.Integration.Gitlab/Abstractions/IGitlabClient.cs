@@ -2,5 +2,5 @@
 
 public interface IGitlabClient
 {
-    Task SendAsync(IGitlabRequest request, CancellationToken cancellationToken);
+    Task<bool> SendAsync(IGitlabRequest request, CancellationToken cancellationToken);
 }
