@@ -18,7 +18,7 @@ internal class CommitRequest : IGitlabRequest
     public CommitRequest(CommitRequestDto message, GitLabOptions options)
     {
         Url = string.Format(Url, options.ProjectPath);
-        AccessToken = options.ProjectAccesToken;
+        AccessToken = options.AccessToken;
         var json = JsonSerializer.Serialize(message);
         Content = new StringContent(json, Encoding.UTF8, "application/json");
     }    

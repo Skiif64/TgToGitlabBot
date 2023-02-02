@@ -1,5 +1,7 @@
 ﻿using Bot.Core.Abstractions;
+using Bot.Core.Options;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
@@ -11,10 +13,16 @@ public class TelegramBot : ITelegramBot, IHostedService
 {
     private readonly ITelegramBotClient _client;
     private readonly IUpdateHandler _updateHandler;
-    public TelegramBot(ITelegramBotClient client, IUpdateHandler updateHandler)
+    public TelegramBot(TelegramBotOptions options, IUpdateHandler updateHandler)
     {
-        _client = client;
+        _client = new TelegramBotClient(options.BotToken);        
         _updateHandler = updateHandler;
+    }
+
+    public TelegramBot(IOptions<TelegramBotOptions> options, IUpdateHandler updateHandler) 
+        : this(options.Value, updateHandler)
+    {
+
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -22,16 +30,18 @@ public class TelegramBot : ITelegramBot, IHostedService
        return StartPollingAsync(cancellationToken);
     }
 
-    public async Task StartPollingAsync(CancellationToken cancellationToken)
+    public Task StartPollingAsync(CancellationToken cancellationToken)
     {
-       await Task.Factory.StartNew(() => _client.StartReceiving(
+       _client.StartReceiving(
             _updateHandler,
             new ReceiverOptions 
             { 
-                ThrowPendingUpdates = true, //TODO: set false
-                AllowedUpdates = new[] {UpdateType.Message}
+                ThrowPendingUpdates = false, //TODO: set false
+                //AllowedUpdates = new[] {UpdateType.Message}
+                
             },
-            cancellationToken));
+            cancellationToken);
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

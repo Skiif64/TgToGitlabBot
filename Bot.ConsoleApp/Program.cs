@@ -11,10 +11,10 @@ builder.ConfigureAppConfiguration((host, cfg) => cfg
 
 builder.ConfigureServices((ctx, services) =>
 {
-    services.Configure<TelegramBotOptions>("TelegramBot", ctx.Configuration);
-    services.Configure<GitLabOptions>("Gitlab", ctx.Configuration);
+    services.Configure<TelegramBotOptions>(ctx.Configuration.GetRequiredSection("TelegramBot"));
+    services.Configure<GitLabOptions>(ctx.Configuration.GetRequiredSection("Gitlab"));
     services.AddGitlab();
-    services.AddTelegramBot(ctx.Configuration);    
+    services.AddTelegramBot();    
 });
 
 await builder

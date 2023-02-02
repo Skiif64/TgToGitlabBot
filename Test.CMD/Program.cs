@@ -7,7 +7,7 @@ var options = new GitLabOptions
 {
     BranchName = "main",
     ProjectPath = "testgroup6892005%2FTestProject",
-    ProjectAccesToken = "glpat-TXzycVYHfca9Xw-oy4C3"
+    AccessToken = "glpat-TXzycVYHfca9Xw-oy4C3"
 };
 
 var file = new CommitInfo

@@ -49,7 +49,7 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
             From = message.From.Username,
             Content = ms,
             FileName = document.FileName,
-            Message = message.Text
+            Message = message.Caption
         };
         await _gitlabService.CommitFileAsync(commitInfo, cancellationToken);  
     }
