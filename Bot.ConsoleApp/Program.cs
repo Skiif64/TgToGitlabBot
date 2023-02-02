@@ -7,7 +7,8 @@ using Bot.Core.Options;
 
 var builder = Host.CreateDefaultBuilder(args);
 builder.ConfigureAppConfiguration((host, cfg) => cfg
-.AddJsonFile("appsettings.json", false, true));
+.AddJsonFile("appsettings.json", false, true)
+.AddEnvironmentVariables());
 
 builder.ConfigureServices((ctx, services) =>
 {
