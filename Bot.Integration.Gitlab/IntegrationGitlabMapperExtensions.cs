@@ -8,8 +8,14 @@ internal static class IntegrationGitlabMapperExtensions
 {
     public static CommitRequestDto MapToRequest(this CommitInfo file, GitLabOptions options)
     {
+        var content = string.Empty;
+        if (file.Content != null)
+        {
+            using var sr = new StreamReader(file.Content);
+            content = sr.ReadToEnd();
+        }
         var request = new CommitRequestDto
-        {            
+        {
             Branch = options.BranchName,
             CommitMessage = file.Message,
             Actions = new[]
@@ -18,7 +24,7 @@ internal static class IntegrationGitlabMapperExtensions
                 {
                     Action = "create",
                     FilePath = file.FileName,
-                    Content = file.Content
+                    Content = content
                 }
             }
         };
