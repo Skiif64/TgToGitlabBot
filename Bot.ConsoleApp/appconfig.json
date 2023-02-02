@@ -1,0 +1,10 @@
+{
+  "TelegramBot": {
+    "BotToken": ""
+  },
+  "Gitlab": {
+    "ProjectPath": "",
+    "AccessToken": "",
+    "BranchName": ""
+  }
+}
