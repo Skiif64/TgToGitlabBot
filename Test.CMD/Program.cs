@@ -1,20 +1,22 @@
 ﻿using Bot.Core.Entities;
 using Bot.Core.Options;
 using Bot.Integration.Gitlab;
+using dotenv.net;
 using System.Text;
 
+DotEnv.Load();
 var options = new GitLabOptions
 {
     BranchName = "main",
-    ProjectPath = "testgroup6892005%2FTestProject",
-    AccessToken = "glpat-TXzycVYHfca9Xw-oy4C3"
+    ProjectPath = Environment.GetEnvironmentVariable("PROJECT_PATH")!,
+    AccessToken = Environment.GetEnvironmentVariable("ACCESS_TOKEN")!
 };
 
 var file = new CommitInfo
 {
     From = "Skiif",
-    FileName = "shit.txt",
-    Message = "govno",
+    FileName = "shit2.txt",
+    Message = "govno2",
     Content = new MemoryStream(Encoding.UTF8.GetBytes("shitshit"))
 };
 
