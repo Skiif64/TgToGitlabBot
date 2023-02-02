@@ -36,7 +36,7 @@ public class GitlabService : IGitlabService
               );
 
         if (result)
-            _logger.LogInformation($"Commited {file.FileName} from {file.From}");
+            _logger.LogInformation($"Commited {file.FileName} from {file.From}"); //TODO: more infomational logging
         else
             _logger.LogCritical("Error during commiting file");        
     }    

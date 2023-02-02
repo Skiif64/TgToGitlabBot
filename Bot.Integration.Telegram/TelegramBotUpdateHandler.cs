@@ -32,7 +32,7 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
-    {
+    { //TODO: throw this shit
         if (update.Type != UpdateType.Message 
             || update is null 
             || update.Message is null 
@@ -49,7 +49,7 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
             From = message.From.Username,
             Content = ms,
             FileName = document.FileName,
-            Message = message.Caption
+            Message = message.Caption //TODO: More informational message
         };
         await _gitlabService.CommitFileAsync(commitInfo, cancellationToken);  
     }
