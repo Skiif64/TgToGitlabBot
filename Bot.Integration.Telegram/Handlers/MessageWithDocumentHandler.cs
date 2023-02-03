@@ -17,20 +17,20 @@ internal class MessageWithDocumentHandler : IHandler<Message>
 
     public bool CanHandle(Message data)
     {
-        if(data == null || data.Document == null)
+        if (data == null || data.Document == null)
             return false;
 
         return true;
     }
 
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
-    {        
-        var document = data.Document!;        
+    {
+        var document = data.Document!;
         using var ms = new MemoryStream();
         await client.GetInfoAndDownloadFileAsync(document.FileId, ms, cancellationToken);
         var message = string.Empty;
 
-        if(data.Caption != null)
+        if (data.Caption != null)
             message = $"{data.Caption}";
         else
             message = $"{document.FileName} from {data.From!.FirstName} {data.From!.LastName}";
@@ -42,7 +42,24 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             FileName = document.FileName!,
             Message = message
         };
-        await _gitlabService.CommitFileAsync(commitInfo, cancellationToken);
-        //TODO: Validation?
+        var result = await _gitlabService.CommitFileAsync(commitInfo, cancellationToken);
+        if (result)
+        {
+            await client.SendTextMessageAsync(
+                chatId: data.Chat.Id,
+                text: $"Файл {commitInfo.FileName} успешно отправлен!",
+                replyToMessageId: data.MessageId,
+                cancellationToken: cancellationToken
+                );
+        }
+        else
+        {
+            await client.SendTextMessageAsync(
+               chatId: data.Chat.Id,
+               text: $"Произошла ошибка при передаче файла {commitInfo.FileName}",
+               replyToMessageId: data.MessageId,
+               cancellationToken: cancellationToken
+                );
+        }
     }
 }
