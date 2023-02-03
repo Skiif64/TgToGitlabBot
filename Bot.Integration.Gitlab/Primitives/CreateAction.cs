@@ -1,8 +1,10 @@
-﻿namespace Bot.Integration.Gitlab.Primitives;
+﻿using Bot.Integration.Gitlab.Primitives.Base;
 
-internal class CreateAction : CommitActionDto
+namespace Bot.Integration.Gitlab.Primitives;
+
+internal class CreateAction : CommitAction
 {
-    public override ActionEnum Action { get; } = ActionEnum.Create;
+    public override ActionType Action { get; } = ActionType.Create;
     public CreateAction(string filename, string content)
     {
         if(content == null)
