@@ -4,7 +4,7 @@ using Bot.Integration.Gitlab.Entities;
 
 namespace Bot.Integration.Gitlab;
 
-internal static class IntegrationGitlabMapperExtensions
+internal static class GitlabMapperExtensions
 {
     public static CommitRequestDto MapToRequest(this CommitInfo file, GitLabOptions options)
     {
