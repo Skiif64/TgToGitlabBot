@@ -1,4 +1,5 @@
 ﻿using Bot.Integration.Gitlab.Abstractions;
+using Bot.Integration.Gitlab.Requests.Base;
 
 namespace Bot.Integration.Gitlab;
 

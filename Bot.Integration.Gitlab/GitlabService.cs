@@ -30,7 +30,7 @@ public class GitlabService : IGitlabService
 
     public async Task CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
     { //TODO: add returning
-        string content = null;
+        string? content = null;
         if (file.Content != null)
             using (var sr = new StreamReader(file.Content))
             {
@@ -39,8 +39,7 @@ public class GitlabService : IGitlabService
 
         var result = await _client.SendAsync(
              new CommitRequest(_options)
-             {
-                 Branch = _options.BranchName,
+             {                 
                  CommitMessage = file.Message,
                  Actions = new[]
                  {
@@ -56,7 +55,7 @@ public class GitlabService : IGitlabService
              );
 
         if (result)
-            _logger.LogInformation($"Commited {file.FileName} from {file.From}"); //TODO: more infomational logging
+            _logger.LogInformation($"Commited {file.FileName} from {file.From} to branch {_options.BranchName}"); //TODO: more infomational logging
         else
             _logger.LogCritical("Error during commiting file");
     }
