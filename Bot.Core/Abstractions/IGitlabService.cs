@@ -4,5 +4,5 @@ namespace Bot.Core.Abstractions;
 
 public interface IGitlabService
 {
-    Task CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default);
+    Task<bool> CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default);
 }

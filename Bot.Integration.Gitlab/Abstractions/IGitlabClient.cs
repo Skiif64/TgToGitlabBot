@@ -1,8 +1,9 @@
-﻿using Bot.Integration.Gitlab.Requests.Base;
+﻿using Bot.Integration.Gitlab.Contracts;
+using Bot.Integration.Gitlab.Requests.Base;
 
 namespace Bot.Integration.Gitlab.Abstractions;
 
 public interface IGitlabClient
 {
-    Task<bool> SendAsync(IGitlabRequest request, CancellationToken cancellationToken);
+    Task<GitlabResponse> SendAsync(IGitlabRequest request, CancellationToken cancellationToken);
 }

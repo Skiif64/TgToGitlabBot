@@ -27,7 +27,7 @@ public class GitlabService : IGitlabService
 
     }
 
-    public async Task CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
+    public async Task<bool> CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
     { //TODO: add returning        
         var result = await _client.SendAsync(
              new CreateRequest(file.Message,
@@ -39,9 +39,11 @@ public class GitlabService : IGitlabService
              cancellationToken
              );
 
-        if (result)
+        if (result.Success)
             _logger.LogInformation($"Commited {file.FileName} from {file.From} to branch {_options.BranchName}"); //TODO: more infomational logging
         else
-            _logger.LogCritical("Error during commiting file");
+            _logger.LogCritical($"Error during commiting file: {result.ErrorMessage!}");
+
+        return result.Success;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Bot.Integration.Gitlab.Abstractions;
+using Bot.Integration.Gitlab.Contracts;
 using Bot.Integration.Gitlab.Requests.Base;
 
 namespace Bot.Integration.Gitlab;
@@ -14,7 +15,7 @@ public class GitlabClient : IGitlabClient
         _httpClient.BaseAddress = new Uri(BASE_URL);
     }
 
-    public async Task<bool> SendAsync(IGitlabRequest request, CancellationToken cancellationToken)
+    public async Task<GitlabResponse> SendAsync(IGitlabRequest request, CancellationToken cancellationToken)
     {        
         var requestMessage = new HttpRequestMessage
         {
@@ -26,8 +27,10 @@ public class GitlabClient : IGitlabClient
         if (!string.IsNullOrEmpty(request.AccessToken))
             requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+        if (response.IsSuccessStatusCode)
+            return GitlabResponse.CreateSuccess();
+
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        //TODO: add response parsing
-        return response.IsSuccessStatusCode;
+        return GitlabResponse.CreateError(responseContent);  
     }
 }
