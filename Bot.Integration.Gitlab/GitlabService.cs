@@ -2,10 +2,10 @@
 using Bot.Core.Entities;
 using Bot.Core.Options;
 using Bot.Integration.Gitlab.Abstractions;
+using Bot.Integration.Gitlab.Entities;
 using Bot.Integration.Gitlab.Requests;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 
 namespace Bot.Integration.Gitlab;
 
@@ -30,8 +30,23 @@ public class GitlabService : IGitlabService
 
     public async Task CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
     { //TODO: add returning
+        using var sr = new StreamReader(file.Content);
+        var content = sr.ReadToEnd();
          var result = await _client.SendAsync(
-              new CommitRequest(file.MapToRequest(_options), _options),
+              new CommitRequest(_options)
+              {
+                  Branch = _options.BranchName,
+                  CommitMessage = file.Message,
+                  Actions = new[]
+                  {
+                      new CommitActionDto
+                      {
+                          Action = "create",
+                          Content = content,
+                          FilePath = file.FileName
+                      }
+                  }
+              },
               cancellationToken
               );
 

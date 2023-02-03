@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Bot.Integration.Gitlab.JsonConverters;
+using System.Text.Json.Serialization;
 
 namespace Bot.Integration.Gitlab.Entities
 {
@@ -8,7 +9,7 @@ namespace Bot.Integration.Gitlab.Entities
         public string Action { get; init; } = string.Empty;
         [JsonPropertyName("file_path")]
         public string FilePath { get; init; } = string.Empty;
-        [JsonPropertyName("content")]
-        public string Content { get; init; } = string.Empty;
+        [JsonPropertyName("content")]        
+        public string? Content { get; init; }
     }
 }
