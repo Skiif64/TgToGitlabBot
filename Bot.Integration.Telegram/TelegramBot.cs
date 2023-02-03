@@ -34,7 +34,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
             _updateHandler,
             new ReceiverOptions 
             { 
-                ThrowPendingUpdates = true,
+                ThrowPendingUpdates = false,
                 AllowedUpdates = new[] {UpdateType.Message}
                 
             },

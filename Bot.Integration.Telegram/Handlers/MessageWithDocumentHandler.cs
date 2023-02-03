@@ -27,7 +27,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     {
         var document = data.Document!;
         using var ms = new MemoryStream();
-        await client.GetInfoAndDownloadFileAsync(document.FileId, ms, cancellationToken);
+        await client.GetInfoAndDownloadFileAsync(document.FileId, ms, cancellationToken);        
         var message = string.Empty;
 
         if (data.Caption != null)
