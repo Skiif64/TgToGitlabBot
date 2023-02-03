@@ -1,5 +1,4 @@
 ﻿using Bot.Core.Abstractions;
-using Bot.Core.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
@@ -44,7 +43,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
-    {
+    {        
         return Task.CompletedTask; //TODO: Do a normal stopping
     }
 }

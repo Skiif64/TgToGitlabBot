@@ -1,5 +1,4 @@
-﻿using Bot.Core.Options;
-using Bot.Integration.Gitlab.Primitives.Base;
+﻿using Bot.Integration.Gitlab.Primitives.Base;
 using Bot.Integration.Gitlab.Requests.Base;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;

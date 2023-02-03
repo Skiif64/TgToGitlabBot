@@ -2,9 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Bot.Integration.Gitlab;
 using Bot.Integration.Telegram;
-using Microsoft.Extensions.DependencyInjection;
-using Bot.Core.Options;
 using dotenv.net;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = Host.CreateDefaultBuilder(args);
 
@@ -17,9 +16,9 @@ builder.ConfigureAppConfiguration((host, cfg) => cfg
 .AddEnvironmentVariables());
 
 builder.ConfigureServices((ctx, services) =>
-{    
-    services.Configure<TelegramBotOptions>(ctx.Configuration.GetRequiredSection("TelegramBot"));
-    services.Configure<GitLabOptions>(ctx.Configuration.GetRequiredSection("Gitlab"));
+{
+    services.Configure<GitLabOptions>(ctx.Configuration.GetRequiredSection(GitLabOptions.Path));
+    services.Configure<TelegramBotOptions>(ctx.Configuration.GetRequiredSection(TelegramBotOptions.Path));
     services.AddGitlab();
     services.AddTelegramBot();
 });

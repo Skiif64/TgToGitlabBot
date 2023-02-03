@@ -1,7 +1,8 @@
-﻿namespace Bot.Core.Options;
+﻿namespace Bot.Integration.Gitlab;
 
 public class GitLabOptions
 {
+    public const string Path = "Gitlab";
     public string ProjectNamespace { get; init; } = string.Empty;
     public string ProjectName { get; init; } = string.Empty;
     public string BranchName { get; init; } = string.Empty;

@@ -1,5 +1,4 @@
-﻿using Bot.Core.Options;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 
 namespace Bot.Integration.Gitlab.Requests.Base;
 

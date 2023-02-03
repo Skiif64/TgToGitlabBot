@@ -1,6 +1,5 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
-using Bot.Core.Options;
 using Bot.Integration.Gitlab;
 using dotenv.net;
 using Microsoft.Extensions.Logging;
