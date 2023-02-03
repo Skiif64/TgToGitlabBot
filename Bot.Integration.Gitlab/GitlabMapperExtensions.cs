@@ -23,7 +23,7 @@ internal static class GitlabMapperExtensions
                 new CommitActionDto
                 {
                     Action = "create",
-                    FilePath = file.FileName,
+                    FilePath = file.FileName, //TODO: Add path offset
                     Content = content
                 }
             }

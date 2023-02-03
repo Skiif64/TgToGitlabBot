@@ -19,9 +19,9 @@ var options = new GitLabOptions
 var file = new CommitInfo
 {
     From = "Skiif",
-    FileName = "shit4.txt",
-    Message = "commit3",
-    Content = new MemoryStream(Encoding.UTF8.GetBytes("shitshit"))
+    FileName = "shit5.txt",
+    Message = "commi5",
+    Content = new MemoryStream(Encoding.UTF8.GetBytes("shitshitshit"))
 };
 var loggerMock = new Mock<ILogger<IGitlabService>>();
 
