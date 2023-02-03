@@ -13,6 +13,8 @@ internal class CreateAction : CommitActionDto
 
     public CreateAction(string filename, Stream contentStream)
     {
+        if(contentStream == null)
+            throw new ArgumentNullException(nameof(contentStream));
         FilePath = filename;
         using var sr = new StreamReader(contentStream);
         Content = sr.ReadToEnd();

@@ -3,6 +3,7 @@ using Bot.Core.Entities;
 using Bot.Core.Options;
 using Bot.Integration.Gitlab.Abstractions;
 using Bot.Integration.Gitlab.Entities;
+using Bot.Integration.Gitlab.Primitives;
 using Bot.Integration.Gitlab.Requests;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -29,28 +30,14 @@ public class GitlabService : IGitlabService
     }
 
     public async Task CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
-    { //TODO: add returning
-        string? content = null;
-        if (file.Content != null)
-            using (var sr = new StreamReader(file.Content))
-            {
-                content = sr.ReadToEnd();
-            }
-
+    { //TODO: add returning        
         var result = await _client.SendAsync(
-             new CommitRequest(_options)
-             {                 
-                 CommitMessage = file.Message,
-                 Actions = new[]
-                 {
-                      new CommitActionDto
-                      {
-                          Action = "create",
-                          Content = content,
-                          FilePath = file.FileName
-                      }
-                 }
+             new CreateRequest(file.Message,
+             new[]
+             {
+                 new CreateAction(file.FileName, file.Content)
              },
+             _options),
              cancellationToken
              );
 
