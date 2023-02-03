@@ -13,9 +13,9 @@ public class GitlabService : IGitlabService
 {    
     private readonly GitLabOptions _options;
     private readonly IGitlabClient _client;
-    private readonly ILogger<GitlabService> _logger;
+    private readonly ILogger<IGitlabService> _logger;
 
-    public GitlabService(IGitlabClient client, GitLabOptions options, ILogger<GitlabService> logger)
+    public GitlabService(IGitlabClient client, GitLabOptions options, ILogger<IGitlabService> logger)
     {
         _client = client;
         _options = options;
