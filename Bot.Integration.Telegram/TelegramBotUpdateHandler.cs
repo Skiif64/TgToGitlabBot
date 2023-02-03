@@ -1,5 +1,7 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
+using Bot.Integration.Telegram.Handlers.Base;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -12,12 +14,14 @@ namespace Bot.Integration.Telegram;
 internal class TelegramBotUpdateHandler : IUpdateHandler
 {
     private readonly IGitlabService _gitlabService;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<TelegramBotUpdateHandler> _logger;
 
-    public TelegramBotUpdateHandler(IGitlabService gitlabService, ILogger<TelegramBotUpdateHandler> logger)
+    public TelegramBotUpdateHandler(IGitlabService gitlabService, ILogger<TelegramBotUpdateHandler> logger, IServiceProvider serviceProvider)
     {
         _gitlabService = gitlabService;
         _logger = logger;
+        _serviceProvider = serviceProvider;
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -32,25 +36,22 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
-    { //TODO: throw this shit
-        if (update.Type != UpdateType.Message 
-            || update is null 
-            || update.Message is null 
-            || update.Message.Document is null)
-            return;
-
-        var message = update.Message;
-        var document = message.Document;
-        var file = await botClient.GetFileAsync(document.FileId, cancellationToken);
-        using var ms = new MemoryStream();
-        await botClient.DownloadFileAsync(file.FilePath, ms, cancellationToken);
-        var commitInfo = new CommitInfo
+    {     
+        var action = update.Type switch
         {
-            From = message.From.Username,
-            Content = ms,
-            FileName = document.FileName,
-            Message = message.Caption //TODO: More informational message
+            UpdateType.Message => OnMessageRecieved(update.Message!, botClient, cancellationToken),
+            _ => throw new NotSupportedException($"Update type {update.Type} is not supported.")
         };
-        await _gitlabService.CommitFileAsync(commitInfo, cancellationToken);  
+        await action;
+    }
+
+    private async Task OnMessageRecieved(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    {
+        var handler = _serviceProvider
+            .GetServices<IHandler<Message>>()
+            .FirstOrDefault(h => h.CanHandle(message));
+        if (handler == null)
+            return;
+        await handler.HandleAsync(message, botClient, cancellationToken);
     }
 }
