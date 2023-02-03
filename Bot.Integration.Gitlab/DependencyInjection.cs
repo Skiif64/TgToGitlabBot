@@ -9,7 +9,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddGitlab(this IServiceCollection services)
     {        
-        services.AddScoped<IGitlabService, GitlabService>();
+        services.AddScoped<IGitlabService, GitlabService>();        
         services.AddScoped<IGitlabClient, GitlabClient>();
         return services;
     }

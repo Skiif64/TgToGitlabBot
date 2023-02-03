@@ -9,9 +9,7 @@ using System.Text;
 DotEnv.Load();
 var options = new GitLabOptions
 {
-    BranchName = "main",
-    ProjectNamespace = Environment.GetEnvironmentVariable("Gitlab__ProjectNamespace")!,
-    ProjectName = Environment.GetEnvironmentVariable("Gitlab__ProjectName")!,
+    BranchName = "main",    
     AccessToken = Environment.GetEnvironmentVariable("Gitlab__AccessToken")!
 };
 

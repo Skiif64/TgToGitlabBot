@@ -28,6 +28,6 @@ internal abstract class CommitRequest : ProjectRequest
         Branch = options.BranchName;
         AuthorEmail = options.AuthorEmail;
         AuthorName = options.AuthorUsername;
-        Url = string.Format(Url, options.ProjectNamespace+"%2F"+options.ProjectName);        
+        Url = string.Format(Url, options.Project.Replace("/", "%2F"));
     }
 }
