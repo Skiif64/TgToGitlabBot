@@ -11,7 +11,7 @@ namespace Bot.Integration.Gitlab.Requests;
 internal class CommitRequest : IGitlabRequest
 {
     public HttpMethod Method { get; } = HttpMethod.Post;
-    public string Url { get; } = "/projects/{0}/repository/commits"; 
+    public string Url { get; } = "/api/v4/projects/{0}/repository/commits"; 
     public HttpContent Content { get; }
     public string? AccessToken { get; }
 

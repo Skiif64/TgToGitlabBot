@@ -8,15 +8,15 @@ DotEnv.Load();
 var options = new GitLabOptions
 {
     BranchName = "main",
-    ProjectPath = Environment.GetEnvironmentVariable("PROJECT_PATH")!,
-    AccessToken = Environment.GetEnvironmentVariable("ACCESS_TOKEN")!
+    ProjectPath = Environment.GetEnvironmentVariable("Gitlab__ProjectPath")!,
+    AccessToken = Environment.GetEnvironmentVariable("Gitlab__AccessToken")!
 };
 
 var file = new CommitInfo
 {
     From = "Skiif",
-    FileName = "shit2.txt",
-    Message = "govno2",
+    FileName = "shit3.txt",
+    Message = "commit3",
     Content = new MemoryStream(Encoding.UTF8.GetBytes("shitshit"))
 };
 
