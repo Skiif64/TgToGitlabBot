@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 namespace Bot.Integration.Gitlab;
 
 public class GitlabService : IGitlabService
-{    
+{
     private readonly GitLabOptions _options;
     private readonly IGitlabClient _client;
     private readonly ILogger<IGitlabService> _logger;
@@ -30,29 +30,34 @@ public class GitlabService : IGitlabService
 
     public async Task CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
     { //TODO: add returning
-        using var sr = new StreamReader(file.Content);
-        var content = sr.ReadToEnd();
-         var result = await _client.SendAsync(
-              new CommitRequest(_options)
-              {
-                  Branch = _options.BranchName,
-                  CommitMessage = file.Message,
-                  Actions = new[]
-                  {
+        string content = null;
+        if (file.Content != null)
+            using (var sr = new StreamReader(file.Content))
+            {
+                content = sr.ReadToEnd();
+            }
+
+        var result = await _client.SendAsync(
+             new CommitRequest(_options)
+             {
+                 Branch = _options.BranchName,
+                 CommitMessage = file.Message,
+                 Actions = new[]
+                 {
                       new CommitActionDto
                       {
                           Action = "create",
                           Content = content,
                           FilePath = file.FileName
                       }
-                  }
-              },
-              cancellationToken
-              );
+                 }
+             },
+             cancellationToken
+             );
 
         if (result)
             _logger.LogInformation($"Commited {file.FileName} from {file.From}"); //TODO: more infomational logging
         else
-            _logger.LogCritical("Error during commiting file");        
-    }    
+            _logger.LogCritical("Error during commiting file");
+    }
 }
