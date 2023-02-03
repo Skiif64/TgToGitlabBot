@@ -8,8 +8,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace Bot.Integration.Telegram;
 
-//TODO: Make internal
-public class TelegramBot : ITelegramBot, IHostedService
+internal class TelegramBot : ITelegramBot, IHostedService
 {
     private readonly ITelegramBotClient _client;
     private readonly IUpdateHandler _updateHandler;
@@ -36,8 +35,8 @@ public class TelegramBot : ITelegramBot, IHostedService
             _updateHandler,
             new ReceiverOptions 
             { 
-                ThrowPendingUpdates = false, //TODO: set false
-                //AllowedUpdates = new[] {UpdateType.Message}
+                ThrowPendingUpdates = false,
+                AllowedUpdates = new[] {UpdateType.Message}
                 
             },
             cancellationToken);
