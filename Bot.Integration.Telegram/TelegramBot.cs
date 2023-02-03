@@ -1,6 +1,6 @@
 ﻿using Bot.Core.Abstractions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
@@ -11,16 +11,17 @@ internal class TelegramBot : ITelegramBot, IHostedService
 {
     private readonly ITelegramBotClient _client;
     private readonly IUpdateHandler _updateHandler;
-    public TelegramBot(TelegramBotOptions options, IUpdateHandler updateHandler)
+    private readonly ILogger<ITelegramBot> _logger;
+    private readonly ReceiverOptions _receiverOptions;
+    public TelegramBot(ITelegramBotClient client,
+        IUpdateHandler updateHandler,
+        ILogger<ITelegramBot> logger,
+        ReceiverOptions receiverOptions)
     {
-        _client = new TelegramBotClient(options.BotToken);        
+        _client = client;
         _updateHandler = updateHandler;
-    }
-
-    public TelegramBot(IOptions<TelegramBotOptions> options, IUpdateHandler updateHandler) 
-        : this(options.Value, updateHandler)
-    {
-
+        _logger = logger;
+        _receiverOptions = receiverOptions;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -28,18 +29,14 @@ internal class TelegramBot : ITelegramBot, IHostedService
        return StartPollingAsync(cancellationToken);
     }
 
-    public Task StartPollingAsync(CancellationToken cancellationToken)
+    public async Task StartPollingAsync(CancellationToken cancellationToken)
     {
        _client.StartReceiving(
             _updateHandler,
-            new ReceiverOptions 
-            { 
-                ThrowPendingUpdates = false,
-                AllowedUpdates = new[] {UpdateType.Message}
-                
-            },
+            _receiverOptions,
             cancellationToken);
-        return Task.CompletedTask;
+        var me = await _client.GetMeAsync(cancellationToken);
+        _logger.LogInformation($"Bot {me.Username} is started");
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

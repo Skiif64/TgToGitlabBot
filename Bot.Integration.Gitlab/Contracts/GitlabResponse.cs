@@ -6,9 +6,9 @@ namespace Bot.Integration.Gitlab.Contracts;
 public class GitlabResponse
 {
     public bool Success { get; }
-    
+
     public string? ErrorMessage { get; }
-    
+
 
     private GitlabResponse()
     {
@@ -25,8 +25,15 @@ public class GitlabResponse
 
     public static GitlabResponse CreateError(string json)
     {
-        var response = JsonSerializer.Deserialize<ErrorResponseMessage>(json);
-        return new GitlabResponse(response.Message);
+        try
+        {
+            var response = JsonSerializer.Deserialize<ErrorResponseMessage>(json);
+            return new GitlabResponse(response.Message);
+        }
+        catch(JsonException exception)
+        {
+            return new GitlabResponse(exception.Message);
+        }
 
     }
 }

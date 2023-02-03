@@ -1,6 +1,4 @@
-﻿using Bot.Core.Abstractions;
-using Bot.Core.Entities;
-using Bot.Integration.Telegram.Handlers.Base;
+﻿using Bot.Integration.Telegram.Handlers.Base;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -12,25 +10,28 @@ using Telegram.Bot.Types.Enums;
 namespace Bot.Integration.Telegram;
 
 internal class TelegramBotUpdateHandler : IUpdateHandler
-{
-    private readonly IGitlabService _gitlabService;
+{    
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<TelegramBotUpdateHandler> _logger;
+    private readonly ReceiverOptions _receiverOptions;
 
-    public TelegramBotUpdateHandler(IGitlabService gitlabService, ILogger<TelegramBotUpdateHandler> logger, IServiceProvider serviceProvider)
+    public TelegramBotUpdateHandler(ILogger<TelegramBotUpdateHandler> logger,
+        IServiceProvider serviceProvider,
+        ReceiverOptions receiverOptions)
     {
-        _gitlabService = gitlabService;
         _logger = logger;
         _serviceProvider = serviceProvider;
+        _receiverOptions = receiverOptions;
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         var message = exception switch
-        {
+        {            
             ApiRequestException api => $"Telegram API error. Error code: {api.ErrorCode}. Message: {api.Message}",
             _ => exception.ToString()
-        };        
+        };
+        _receiverOptions.Offset++; //TODO: remove this
         _logger.LogError(message);
         return Task.CompletedTask;
     }
@@ -41,7 +42,7 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
         {
             UpdateType.Message => OnMessageRecieved(update.Message!, botClient, cancellationToken),
             _ => throw new NotSupportedException($"Update type {update.Type} is not supported.")
-        };
+        };        
         await action;
     }
 

@@ -23,7 +23,6 @@ internal class CreateAction : CommitAction
         {
             contentStream.Position = 0;
             Content = sr.ReadToEnd();
-        }
-        contentStream.Dispose();
+        }        
     }
 }
