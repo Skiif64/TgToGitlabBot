@@ -2,7 +2,6 @@
 using Bot.Core.Entities;
 using Bot.Core.Options;
 using Bot.Integration.Gitlab.Abstractions;
-using Bot.Integration.Gitlab.Entities;
 using Bot.Integration.Gitlab.Primitives;
 using Bot.Integration.Gitlab.Requests;
 using Microsoft.Extensions.Logging;

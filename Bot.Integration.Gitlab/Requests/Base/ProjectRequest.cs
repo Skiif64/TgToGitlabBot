@@ -15,6 +15,6 @@ internal abstract class ProjectRequest : IGitlabRequest
         AccessToken = options.AccessToken;
     }
 
-    public virtual HttpContent? ToHttpContent() => JsonContent.Create(this);
+    public abstract HttpContent? ToHttpContent();
 
 }

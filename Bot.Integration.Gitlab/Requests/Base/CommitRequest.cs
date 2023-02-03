@@ -1,7 +1,6 @@
 ﻿using Bot.Core.Options;
-using Bot.Integration.Gitlab.Primitives;
+using Bot.Integration.Gitlab.Primitives.Base;
 using Bot.Integration.Gitlab.Requests.Base;
-using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
@@ -23,7 +22,7 @@ internal abstract class CommitRequest : ProjectRequest
     [JsonPropertyName("author_email")]
     public string? AuthorEmail { get;  }
     [JsonPropertyName("actions")]
-    public CommitActionDto[] Actions { get; set; } = Array.Empty<CommitActionDto>();
+    public CommitAction[] Actions { get; set; } = Array.Empty<CommitAction>();
 
     public CommitRequest(GitLabOptions options) : base(options)
     {

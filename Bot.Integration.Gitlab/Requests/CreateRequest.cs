@@ -1,5 +1,6 @@
 ﻿using Bot.Core.Options;
 using Bot.Integration.Gitlab.Primitives;
+using System.Net.Http.Json;
 
 namespace Bot.Integration.Gitlab.Requests;
 
@@ -10,4 +11,6 @@ internal class CreateRequest : CommitRequest
         CommitMessage = message;
         Actions = actions;
     }
+
+    public override HttpContent? ToHttpContent() => JsonContent.Create(this);
 }

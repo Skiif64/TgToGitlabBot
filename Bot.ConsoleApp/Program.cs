@@ -17,7 +17,7 @@ builder.ConfigureAppConfiguration((host, cfg) => cfg
 .AddEnvironmentVariables());
 
 builder.ConfigureServices((ctx, services) =>
-{
+{    
     services.Configure<TelegramBotOptions>(ctx.Configuration.GetRequiredSection("TelegramBot"));
     services.Configure<GitLabOptions>(ctx.Configuration.GetRequiredSection("Gitlab"));
     services.AddGitlab();
