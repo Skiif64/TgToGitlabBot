@@ -2,7 +2,7 @@
 
 namespace Bot.Integration.Gitlab.Requests.Base;
 
-public interface IGitlabRequest
+public interface IGitlabRequest<TResponse>
 {
     [JsonIgnore]
     HttpMethod Method { get; }

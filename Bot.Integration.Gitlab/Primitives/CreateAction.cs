@@ -6,23 +6,14 @@ namespace Bot.Integration.Gitlab.Primitives;
 internal class CreateAction : CommitAction
 {
     public override ActionType Action { get; } = ActionType.Create;
-    public CreateAction(string filename, string content)
+    public CreateAction(string filename, string content) : base(filename, content)
     {
         if (content == null)
-            throw new ArgumentNullException(nameof(content));
-        FilePath = filename;
-        Content = content;
+            throw new ArgumentNullException(nameof(content));        
     }
 
-    public CreateAction(string filename, Stream contentStream)
+    public CreateAction(string filename, Stream contentStream) : base(filename, contentStream)
     {
-        if (contentStream == null)
-            throw new ArgumentNullException(nameof(contentStream));
-        FilePath = filename;
-        using (var sr = new StreamReader(contentStream))
-        {
-            contentStream.Position = 0;
-            Content = sr.ReadToEnd();
-        }        
+             
     }
 }
