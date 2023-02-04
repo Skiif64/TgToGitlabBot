@@ -22,5 +22,5 @@ var file = new CommitInfo
 };
 var loggerMock = new Mock<ILogger<IGitlabService>>();
 
-var service = new GitlabService(new GitlabClient(), options, loggerMock.Object);
-await service.CommitFileAsync(file, default);
+//var service = new GitlabService(new GitlabClient(), options, loggerMock.Object);
+//await service.CommitFileAsync(file, default);
