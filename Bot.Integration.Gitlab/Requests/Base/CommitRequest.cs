@@ -1,5 +1,6 @@
 ﻿using Bot.Integration.Gitlab.Primitives.Base;
 using Bot.Integration.Gitlab.Requests.Base;
+using Bot.Integration.Gitlab.Responses;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
@@ -7,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Bot.Integration.Gitlab.Requests;
 
-internal abstract class CommitRequest : ProjectRequest
+internal abstract class CommitRequest : RequestBase<CommitResponse>
 {
     public override HttpMethod Method { get; } = HttpMethod.Post;
     public override string Url { get; } = "/api/v4/projects/{0}/repository/commits"; 

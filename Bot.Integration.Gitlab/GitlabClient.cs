@@ -1,6 +1,6 @@
 ﻿using Bot.Integration.Gitlab.Abstractions;
-using Bot.Integration.Gitlab.Contracts;
 using Bot.Integration.Gitlab.Requests.Base;
+using System.Text.Json;
 
 namespace Bot.Integration.Gitlab;
 
@@ -15,7 +15,7 @@ public class GitlabClient : IGitlabClient
         _httpClient.BaseAddress = new Uri(BASE_URL);
     }
 
-    public async Task<CreateFileResponse> SendAsync(IGitlabRequest request, CancellationToken cancellationToken)
+    public async Task<TResponse> SendAsync<TResponse>(IGitlabRequest<TResponse> request, CancellationToken cancellationToken)
     {        
         var requestMessage = new HttpRequestMessage
         {
@@ -28,9 +28,10 @@ public class GitlabClient : IGitlabClient
             requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
         if (response.IsSuccessStatusCode)
-            return CreateFileResponse.Success();
+            return default; //TODO: throw
 
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return CreateFileResponse.Error(responseContent);  
+        using var responseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
+        return await JsonSerializer.DeserializeAsync<TResponse>(responseContent, cancellationToken: cancellationToken)
+            ?? throw new HttpRequestException("Error occured", null, response.StatusCode); // TODO: ???
     }
 }

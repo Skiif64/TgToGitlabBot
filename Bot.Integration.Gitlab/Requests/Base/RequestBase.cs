@@ -2,13 +2,13 @@
 
 namespace Bot.Integration.Gitlab.Requests.Base;
 
-internal abstract class ProjectRequest : IGitlabRequest
+internal abstract class RequestBase<TResponse> : IGitlabRequest<TResponse>
 {
     public abstract HttpMethod Method { get; }
     public abstract string Url { get; }
     public string? AccessToken { get; }
 
-    public ProjectRequest(GitLabOptions options)
+    public RequestBase(GitLabOptions options)
     {        
         AccessToken = options.AccessToken;
     }
