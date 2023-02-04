@@ -5,5 +5,5 @@ namespace Bot.Integration.Gitlab.Abstractions;
 
 public interface IGitlabClient
 {
-    Task<GitlabResponse> SendAsync(IGitlabRequest request, CancellationToken cancellationToken);
+    Task<CreateFileResponse> SendAsync(IGitlabRequest request, CancellationToken cancellationToken);
 }

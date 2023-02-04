@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Bot.Core\Bot.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
+  </ItemGroup>
+
 </Project>

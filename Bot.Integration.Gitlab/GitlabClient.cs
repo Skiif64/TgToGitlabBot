@@ -15,7 +15,7 @@ public class GitlabClient : IGitlabClient
         _httpClient.BaseAddress = new Uri(BASE_URL);
     }
 
-    public async Task<GitlabResponse> SendAsync(IGitlabRequest request, CancellationToken cancellationToken)
+    public async Task<CreateFileResponse> SendAsync(IGitlabRequest request, CancellationToken cancellationToken)
     {        
         var requestMessage = new HttpRequestMessage
         {
@@ -28,9 +28,9 @@ public class GitlabClient : IGitlabClient
             requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
         if (response.IsSuccessStatusCode)
-            return GitlabResponse.CreateSuccess();
+            return CreateFileResponse.Success();
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return GitlabResponse.CreateError(responseContent);  
+        return CreateFileResponse.Error(responseContent);  
     }
 }
