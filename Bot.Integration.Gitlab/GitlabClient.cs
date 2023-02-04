@@ -22,12 +22,10 @@ public class GitlabClient : IGitlabClient
             RequestUri = new Uri(request.Url, UriKind.Relative),
             Method = request.Method,
             Content = request.ToHttpContent()
-        };
-        var requestContent = await requestMessage.Content.ReadAsStringAsync();
+        };        
         if (!string.IsNullOrEmpty(request.AccessToken))
             requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
-        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
-        var rc = await response.Content.ReadAsStringAsync();
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);        
         if (!response.IsSuccessStatusCode)
             return default; //TODO: throw
 
