@@ -8,11 +8,13 @@ public class GitlabClient : IGitlabClient
 {
     private const string BASE_URL = "https://gitlab.com";
     private readonly HttpClient _httpClient;
+    private readonly IExceptionParser _exceptionParser;
 
-    public GitlabClient()
+    public GitlabClient(IExceptionParser exceptionParser)
     {
         _httpClient = new HttpClient();
         _httpClient.BaseAddress = new Uri(BASE_URL);
+        _exceptionParser = exceptionParser;
     }
 
     public async Task<TResponse> SendAsync<TResponse>(IGitlabRequest<TResponse> request, CancellationToken cancellationToken)
@@ -25,9 +27,9 @@ public class GitlabClient : IGitlabClient
         };        
         if (!string.IsNullOrEmpty(request.AccessToken))
             requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
-        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);        
+        var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
         if (!response.IsSuccessStatusCode)
-            return default; //TODO: throw
+            throw _exceptionParser.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
 
         using var responseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
         return await JsonSerializer.DeserializeAsync<TResponse>(responseContent, cancellationToken: cancellationToken)
