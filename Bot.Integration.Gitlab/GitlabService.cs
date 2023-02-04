@@ -39,11 +39,11 @@ public class GitlabService : IGitlabService
              cancellationToken
              );
 
-        if (result.IsSuccess)
+        if (result is not null)
             _logger.LogInformation($"Commited {file.FileName} from {file.From} to branch {_options.BranchName}");
         else
             _logger.LogCritical($"Error during commiting file: "); //TODO: print exception
 
-        return result.IsSuccess;
+        return true;
     }
 }

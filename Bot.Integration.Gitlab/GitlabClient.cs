@@ -27,7 +27,8 @@ public class GitlabClient : IGitlabClient
         if (!string.IsNullOrEmpty(request.AccessToken))
             requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
-        if (response.IsSuccessStatusCode)
+        var rc = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
             return default; //TODO: throw
 
         using var responseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
