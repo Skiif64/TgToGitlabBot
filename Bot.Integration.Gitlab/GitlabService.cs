@@ -45,12 +45,12 @@ public class GitlabService : IGitlabService
             else
                 await CreateNewFile(file, cancellationToken, chatOptions);
 
-            _logger.LogInformation($"Commited {file.FileName} from {file.From} to branch {chatOptions.BranchName}");
+            _logger.LogInformation($"Commited {file.FileName} from {file.From} to project {chatOptions.Project}, branch {chatOptions.BranchName}");
             return true;
         }
         catch (ValidationException exception)
         {
-            _logger.LogCritical($"Error during commiting file: {exception.Message}");
+            _logger.LogError($"Error during commiting file: {exception.Message}");
         }
 
         return false;
