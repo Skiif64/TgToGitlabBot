@@ -8,4 +8,5 @@ public class GitLabOptions
     public string AuthorUsername { get; init; } = string.Empty;  //TODO: Maybe remove  
     public string AuthorEmail { get; init; } = string.Empty;
     public string? AccessToken { get; init; }
+    public string? FilePath { get; init; }
 }

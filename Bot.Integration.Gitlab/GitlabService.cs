@@ -33,7 +33,7 @@ public class GitlabService : IGitlabService
              new CreateRequest(file.Message,
              new[]
              {
-                 new CreateAction(file.FileName, file.Content)
+                 new CreateAction(_options.FilePath + file.FileName, file.Content)
              },
              _options),
              cancellationToken
