@@ -16,7 +16,7 @@ public static class DependencyInjection
         services.AddSingleton<ReceiverOptions>(new ReceiverOptions
         {
             AllowedUpdates = new[] { UpdateType.Message },
-            ThrowPendingUpdates = true
+            ThrowPendingUpdates = true,           
         });
         services.AddSingleton<ITelegramBotClient, TelegramBotClient>(sp =>
             new TelegramBotClient(sp.GetRequiredService<IOptions<TelegramBotOptions>>().Value.BotToken));

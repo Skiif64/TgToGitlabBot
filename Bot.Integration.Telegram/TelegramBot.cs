@@ -36,7 +36,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
             _receiverOptions,
             cancellationToken);
         var me = await _client.GetMeAsync(cancellationToken);
-        _logger.LogInformation($"Bot {me.Username} is started");
+        _logger.LogInformation($"Bot @{me.Username} is started");
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
