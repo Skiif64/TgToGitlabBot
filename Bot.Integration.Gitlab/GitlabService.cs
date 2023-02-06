@@ -24,7 +24,7 @@ public class GitlabService : IGitlabService
         _logger = logger;
     }
 
-    public GitlabService(IGitlabClient client, IOptions<GitLabOptions> options, ILogger<GitlabService> logger)
+    public GitlabService(IGitlabClient client, IOptionsSnapshot<GitLabOptions> options, ILogger<GitlabService> logger)
         : this(client, options.Value, logger)
     {
 
@@ -32,7 +32,12 @@ public class GitlabService : IGitlabService
 
     public async Task<bool> CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
     {
-        var chatOptions = _options.ChatOptions[file.FromChatId.ToString()];
+        if(!_options.ChatOptions.TryGetValue(file.FromChatId.ToString(), out var chatOptions))
+        {
+            _logger.LogError($"Configuration for this chat {file.FromChatId} is not set!");
+            return false;
+        }
+
         try
         {
             if (await FileExists(file, cancellationToken, chatOptions))
