@@ -31,7 +31,7 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
             ApiRequestException api => $"Telegram API error. Error code: {api.ErrorCode}. Message: {api.Message}",
             _ => exception.Message
         };        
-        _logger.LogError(message);
+        _logger.LogError(message);              
         return Task.CompletedTask;
     }
 

@@ -1,6 +1,7 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
 using Bot.Integration.Gitlab.Abstractions;
+using Bot.Integration.Gitlab.Exceptions;
 using Bot.Integration.Gitlab.Primitives;
 using Bot.Integration.Gitlab.Requests;
 using Microsoft.Extensions.Logging;
@@ -28,22 +29,27 @@ public class GitlabService : IGitlabService
     }
 
     public async Task<bool> CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
-    {     
-        var result = await _client.SendAsync(
-             new CreateRequest(file.Message,
-             new[]
-             {
+    {
+        try
+        {
+            var result = await _client.SendAsync(
+                 new CreateRequest(file.Message,
+                 new[]
+                 {
                  new CreateAction(_options.FilePath + file.FileName, file.Content)
-             },
-             _options),
-             cancellationToken
-             );
+                 },
+                 _options),
+                 cancellationToken
+                 );
 
-        if (result is not null)
             _logger.LogInformation($"Commited {file.FileName} from {file.From} to branch {_options.BranchName}");
-        else
-            _logger.LogCritical($"Error during commiting file: "); //TODO: print exception
+            return true;
+        }
+        catch (ValidationException exception)
+        {
+            _logger.LogCritical($"Error during commiting file: {exception.Message}");
+        }
 
-        return true;
+        return false;
     }
 }
