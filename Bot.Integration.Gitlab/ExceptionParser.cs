@@ -16,6 +16,7 @@ public class ExceptionParser : IExceptionParser
         {
             HttpStatusCode.BadRequest => ParseValidationException(json),
             HttpStatusCode.NotFound => ParseNotFoundException(json),
+            HttpStatusCode.Unauthorized => ParseAuthentificationException(json),
             _ => new Exception("WTF?")
         };
         
@@ -33,5 +34,13 @@ public class ExceptionParser : IExceptionParser
         var document = JsonDocument.Parse(json);
         var message = document.RootElement.GetProperty("message").GetString();
         return new NotFoundException(message);
+    }
+
+    private Exception ParseAuthentificationException(string json)
+    {
+        var document = JsonDocument.Parse(json);
+        var message = document.RootElement.GetProperty("error").GetString();
+        var description = document.RootElement.GetProperty("error_description").GetString();
+        return new AuthentificationException(message, description);
     }
 }
