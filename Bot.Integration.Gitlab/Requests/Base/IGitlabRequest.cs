@@ -10,6 +10,8 @@ public interface IGitlabRequest<TResponse>
     string Url { get; }
     [JsonIgnore]
     string? AccessToken { get; }
+    [JsonIgnore]
+    Dictionary<string, string?> Headers { get; }
 
     HttpContent? ToHttpContent();
 }

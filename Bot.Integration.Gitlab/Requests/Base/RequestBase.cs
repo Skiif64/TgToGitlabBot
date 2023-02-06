@@ -7,10 +7,11 @@ internal abstract class RequestBase<TResponse> : IGitlabRequest<TResponse>
     public abstract HttpMethod Method { get; }
     public abstract string Url { get; }
     public string? AccessToken { get; }
+    public Dictionary<string, string?> Headers { get; } = new();
 
     public RequestBase(GitLabOptions options)
     {        
-        AccessToken = options.AccessToken;
+        AccessToken = options.AccessToken;        
     }
 
     public abstract HttpContent? ToHttpContent();

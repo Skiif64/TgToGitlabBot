@@ -3,7 +3,9 @@ using Bot.Core.Entities;
 using Bot.Integration.Gitlab.Abstractions;
 using Bot.Integration.Gitlab.Exceptions;
 using Bot.Integration.Gitlab.Primitives;
+using Bot.Integration.Gitlab.Primitives.Base;
 using Bot.Integration.Gitlab.Requests;
+using Bot.Integration.Gitlab.Responses;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -32,15 +34,10 @@ public class GitlabService : IGitlabService
     {
         try
         {
-            var result = await _client.SendAsync(
-                 new CreateRequest(file.Message,
-                 new[]
-                 {
-                 new CreateAction(_options.FilePath + file.FileName, file.Content)
-                 },
-                 _options),
-                 cancellationToken
-                 );
+            if (await FileExists(file, cancellationToken))
+                await UpdateFile(file, cancellationToken);
+            else
+                await CreateNewFile(file, cancellationToken);
 
             _logger.LogInformation($"Commited {file.FileName} from {file.From} to branch {_options.BranchName}");
             return true;
@@ -51,5 +48,47 @@ public class GitlabService : IGitlabService
         }
 
         return false;
+    }
+
+    private async Task<bool> FileExists(CommitInfo file, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _client.SendAsync(
+                new GetFileRequest(_options.FilePath + file.FileName, _options),
+                cancellationToken
+                );
+            return true;
+        }
+        catch (ValidationException exception)
+        {
+            _logger.LogCritical($"Error during checking existing file: {exception.Message}");
+        }
+        return false;
+    }
+
+    private async Task<CommitResponse> UpdateFile(CommitInfo file, CancellationToken cancellationToken)
+    {
+        return await _client.SendAsync(
+                        new UpdateRequest(file.Message,
+                        new[]
+                        {
+                    new UpdateAction(_options.FilePath + file.FileName, file.Content)
+                        },
+                        _options),
+                        cancellationToken);
+    }
+
+    private async Task<CommitResponse> CreateNewFile(CommitInfo file, CancellationToken cancellationToken)
+    {
+        return await _client.SendAsync(
+                         new CreateRequest(file.Message,
+                         new[]
+                         {
+                 new CreateAction(_options.FilePath + file.FileName, file.Content)
+                         },
+                         _options),
+                         cancellationToken
+                         );
     }
 }

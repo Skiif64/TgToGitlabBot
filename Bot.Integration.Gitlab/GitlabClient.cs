@@ -27,6 +27,10 @@ public class GitlabClient : IGitlabClient
         };        
         if (!string.IsNullOrEmpty(request.AccessToken))
             requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
+        if(request.Headers is not null || request.Headers.Count != 0)
+            foreach(var (key, value) in request.Headers)
+                requestMessage.Headers.Add(key, value);
+
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
         if (!response.IsSuccessStatusCode)
             throw _exceptionParser.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
