@@ -2,7 +2,12 @@
 
 public class GitLabOptions
 {
-    public const string Path = "Gitlab";    
+    public const string Path = "Gitlab";
+    public Dictionary<string, GitlabChatOptions> ChatOptions { get; init; } = null!;
+}
+
+public class GitlabChatOptions
+{
     public string Project { get; init; } = string.Empty;
     public string BranchName { get; init; } = string.Empty;
     public string AuthorUsername { get; init; } = string.Empty;  //TODO: Maybe remove  

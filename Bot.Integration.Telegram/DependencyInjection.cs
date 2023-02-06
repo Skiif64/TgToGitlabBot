@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddSingleton<IUpdateHandler, TelegramBotUpdateHandler>();
         services.AddHostedService<TelegramBot>();
         services.AddTransient<IHandler<Message>, MessageWithDocumentHandler>();
+        services.AddTransient<IHandler<Message>, StatusCommandHandler>();
         return services;
     }
 }

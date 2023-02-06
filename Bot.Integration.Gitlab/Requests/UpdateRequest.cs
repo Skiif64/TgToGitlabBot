@@ -1,11 +1,11 @@
-﻿using Bot.Integration.Gitlab.Primitives;
+﻿using Bot.Integration.Gitlab.Primitives.Base;
 using System.Net.Http.Json;
 
 namespace Bot.Integration.Gitlab.Requests;
 
-internal class CreateRequest : CommitRequest
+internal class UpdateRequest : CommitRequest
 {
-    public CreateRequest(string message, CreateAction[] actions, GitlabChatOptions options) : base(options)
+    public UpdateRequest(string message, UpdateAction[] actions, GitlabChatOptions options) : base(options)
     {
         CommitMessage = message;
         Actions = actions;

@@ -11,24 +11,24 @@ namespace Bot.Integration.Gitlab.Requests;
 internal abstract class CommitRequest : RequestBase<CommitResponse>
 {
     public override HttpMethod Method { get; } = HttpMethod.Post;
-    public override string Url { get; } = "/api/v4/projects/{0}/repository/commits"; 
+    public override string Url { get; } = "/api/v4/projects/{0}/repository/commits";
 
     [JsonPropertyName("branch")]
-    public string Branch { get;  } = string.Empty;
+    public string Branch { get; } = string.Empty;
     [JsonPropertyName("commit_message")]
     public string CommitMessage { get; set; } = string.Empty;
     [JsonPropertyName("author_name")]
-    public string? AuthorName { get;  }
+    public string? AuthorName { get; }
     [JsonPropertyName("author_email")]
-    public string? AuthorEmail { get;  }
+    public string? AuthorEmail { get; }
     [JsonPropertyName("actions")]
     public CommitAction[] Actions { get; set; } = Array.Empty<CommitAction>();
 
-    public CommitRequest(GitLabOptions options) : base(options)
+    public CommitRequest(GitlabChatOptions options) : base(options)
     {
         Branch = options.BranchName;
         AuthorEmail = options.AuthorEmail;
         AuthorName = options.AuthorUsername;
-        Url = string.Format(Url, options.Project.Replace("/", "%2F"));
+        Url = string.Format(Url, options.Project.Replace("/", "%2F"));        
     }
 }

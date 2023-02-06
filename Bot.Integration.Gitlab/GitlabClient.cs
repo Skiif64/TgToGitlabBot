@@ -24,12 +24,14 @@ public class GitlabClient : IGitlabClient
             RequestUri = new Uri(request.Url, UriKind.Relative),
             Method = request.Method,
             Content = request.ToHttpContent()
-        };        
-        if (!string.IsNullOrEmpty(request.AccessToken))
-            requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
+        }; 
+        if(request.Headers is not null && request.Headers.Count != 0)
+            foreach(var (key, value) in request.Headers)
+                requestMessage.Headers.Add(key, value);
+
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
         if (!response.IsSuccessStatusCode)
-            throw _exceptionParser.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+            throw await _exceptionParser.ParseAsync(response, cancellationToken);
 
         using var responseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
         return await JsonSerializer.DeserializeAsync<TResponse>(responseContent, cancellationToken: cancellationToken)

@@ -9,6 +9,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddGitlab(this IServiceCollection services)
     {  
+        services.AddTransient<IConfigurationChecker, GitlabConfigurationChecker>();
         services.AddSingleton<IExceptionParser, ExceptionParser>();
         services.AddScoped<IGitlabService, GitlabService>();        
         services.AddScoped<IGitlabClient, GitlabClient>();
