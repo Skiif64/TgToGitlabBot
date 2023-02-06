@@ -48,7 +48,8 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
 
     private async Task OnMessageRecieved(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
-        var handler = _serviceProvider
+        await using var scope = _serviceProvider.CreateAsyncScope();
+        var handler = scope.ServiceProvider
             .GetServices<IHandler<Message>>()
             .FirstOrDefault(h => h.CanHandle(message));
         if (handler == null)
