@@ -15,7 +15,8 @@ public class ExceptionParser : IExceptionParser
         return statusCode switch
         {
             HttpStatusCode.BadRequest => ParseValidationException(json),
-            HttpStatusCode.NotFound => ParseNotFoundException(json),            
+            HttpStatusCode.NotFound => ParseNotFoundException(json),
+            _ => new Exception("WTF?")
         };
         
     }
