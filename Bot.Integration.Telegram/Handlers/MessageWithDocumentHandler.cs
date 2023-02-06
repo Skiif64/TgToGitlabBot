@@ -26,19 +26,17 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
     {
         var document = data.Document!;
-        using var ms = new MemoryStream();
-        await client.GetInfoAndDownloadFileAsync(document.FileId, ms, cancellationToken);        
-        var message = string.Empty;
+        using var stream = new MemoryStream();
+        await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
+        var message = $"{document.FileName} from {data.From!.FirstName} {data.From!.LastName}";
 
-        if (data.Caption != null)
-            message = $"{data.Caption}";
-        else
-            message = $"{document.FileName} from {data.From!.FirstName} {data.From!.LastName}";
-
+        if (!string.IsNullOrWhiteSpace(data.Caption))
+            message += $" message: {data.Caption}";
+        
         var commitInfo = new CommitInfo
         {
             From = data.From!.Username!,
-            Content = ms,
+            Content = stream,
             FileName = document.FileName!,
             Message = message
         };
