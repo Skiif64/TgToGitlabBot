@@ -5,7 +5,7 @@ namespace Bot.Integration.Gitlab.Requests;
 
 internal class CreateRequest : CommitRequest
 {
-    public CreateRequest(string message, CreateAction[] actions, GitLabOptions options) : base(options)
+    public CreateRequest(string message, CreateAction[] actions, GitlabChatOptions options) : base(options)
     {
         CommitMessage = message;
         Actions = actions;

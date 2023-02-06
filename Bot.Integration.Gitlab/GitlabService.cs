@@ -32,14 +32,15 @@ public class GitlabService : IGitlabService
 
     public async Task<bool> CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
     {
+        var chatOptions = _options.ChatOptions[file.FromChatId.ToString()];
         try
         {
-            if (await FileExists(file, cancellationToken))
-                await UpdateFile(file, cancellationToken);
+            if (await FileExists(file, cancellationToken, chatOptions))
+                await UpdateFile(file, cancellationToken, chatOptions);
             else
-                await CreateNewFile(file, cancellationToken);
+                await CreateNewFile(file, cancellationToken, chatOptions);
 
-            _logger.LogInformation($"Commited {file.FileName} from {file.From} to branch {_options.BranchName}");
+            _logger.LogInformation($"Commited {file.FileName} from {file.From} to branch {chatOptions.BranchName}");
             return true;
         }
         catch (ValidationException exception)
@@ -50,12 +51,12 @@ public class GitlabService : IGitlabService
         return false;
     }
 
-    private async Task<bool> FileExists(CommitInfo file, CancellationToken cancellationToken)
+    private async Task<bool> FileExists(CommitInfo file, CancellationToken cancellationToken, GitlabChatOptions options)
     {
         try
         {
             await _client.SendAsync(
-                new GetFileRequest(_options.FilePath + file.FileName, _options),
+                new GetFileRequest(options.FilePath + file.FileName, options),
                 cancellationToken
                 );
             return true;
@@ -67,27 +68,27 @@ public class GitlabService : IGitlabService
         return false;
     }
 
-    private async Task<CommitResponse> UpdateFile(CommitInfo file, CancellationToken cancellationToken)
+    private async Task<CommitResponse> UpdateFile(CommitInfo file, CancellationToken cancellationToken, GitlabChatOptions options)
     {
         return await _client.SendAsync(
                         new UpdateRequest(file.Message,
                         new[]
                         {
-                    new UpdateAction(_options.FilePath + file.FileName, file.Content)
+                    new UpdateAction(options.FilePath + file.FileName, file.Content)
                         },
-                        _options),
+                        options),
                         cancellationToken);
     }
 
-    private async Task<CommitResponse> CreateNewFile(CommitInfo file, CancellationToken cancellationToken)
+    private async Task<CommitResponse> CreateNewFile(CommitInfo file, CancellationToken cancellationToken, GitlabChatOptions options)
     {
         return await _client.SendAsync(
                          new CreateRequest(file.Message,
                          new[]
                          {
-                 new CreateAction(_options.FilePath + file.FileName, file.Content)
+                 new CreateAction(options.FilePath + file.FileName, file.Content)
                          },
-                         _options),
+                         options),
                          cancellationToken
                          );
     }

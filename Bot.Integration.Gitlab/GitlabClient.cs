@@ -24,10 +24,8 @@ public class GitlabClient : IGitlabClient
             RequestUri = new Uri(request.Url, UriKind.Relative),
             Method = request.Method,
             Content = request.ToHttpContent()
-        };        
-        if (!string.IsNullOrEmpty(request.AccessToken))
-            requestMessage.Headers.Add("PRIVATE-TOKEN", request.AccessToken);
-        if(request.Headers is not null || request.Headers.Count != 0)
+        }; 
+        if(request.Headers is not null && request.Headers.Count != 0)
             foreach(var (key, value) in request.Headers)
                 requestMessage.Headers.Add(key, value);
 

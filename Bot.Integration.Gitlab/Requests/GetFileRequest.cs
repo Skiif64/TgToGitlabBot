@@ -8,7 +8,7 @@ namespace Bot.Integration.Gitlab.Requests
     {  
         public override HttpMethod Method { get; } = HttpMethod.Get;
         public override string Url { get; } = "/api/v4/projects/{0}/repository/files/{1}?ref={2}";        
-        public GetFileRequest(string filePath, GitLabOptions options) : base(options)
+        public GetFileRequest(string filePath, GitlabChatOptions options) : base(options)
         {           
             var project = options.Project.Replace("/", "%2F");
             filePath = filePath.Replace("/", "%2F").Replace(".", "%2E");

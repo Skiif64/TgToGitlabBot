@@ -9,9 +9,11 @@ internal abstract class RequestBase<TResponse> : IGitlabRequest<TResponse>
     public string? AccessToken { get; }
     public Dictionary<string, string?> Headers { get; } = new();
 
-    public RequestBase(GitLabOptions options)
+    public RequestBase(GitlabChatOptions options)
     {        
-        AccessToken = options.AccessToken;        
+        AccessToken = options.AccessToken;
+        if (AccessToken is not null)
+            Headers.Add("PRIVATE-TOKEN", AccessToken);
     }
 
     public abstract HttpContent? ToHttpContent();
