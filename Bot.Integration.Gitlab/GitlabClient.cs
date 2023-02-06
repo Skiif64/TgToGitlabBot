@@ -17,16 +17,15 @@ public class GitlabClient : IGitlabClient
     public async Task<TResponse> SendAsync<TResponse>(IGitlabRequest<TResponse> request, CancellationToken cancellationToken)
     {
         var requestMessage = new HttpRequestMessage
-        {
-            RequestUri = new Uri(request.Url, UriKind.Relative),
+        {            
+            RequestUri = new Uri(new Uri(BASE_URL), request.Url),
             Method = request.Method,
             Content = request.ToHttpContent()
         };
         if (request.Headers is not null && request.Headers.Count != 0)
             foreach (var (key, value) in request.Headers)
                 requestMessage.Headers.Add(key, value);
-        using var httpClient = new HttpClient();
-        httpClient.BaseAddress = new Uri(BASE_URL);
+        using var httpClient = new HttpClient();       
         var response = await httpClient.SendAsync(requestMessage, cancellationToken);
 
         if (!response.IsSuccessStatusCode)

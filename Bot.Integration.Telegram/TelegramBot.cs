@@ -25,7 +25,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
-    {
+    {       
        return StartPollingAsync(cancellationToken);
     }
 
