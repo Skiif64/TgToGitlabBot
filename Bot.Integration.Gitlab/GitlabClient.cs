@@ -31,7 +31,7 @@ public class GitlabClient : IGitlabClient
 
         var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
         if (!response.IsSuccessStatusCode)
-            throw _exceptionParser.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+            throw await _exceptionParser.ParseAsync(response, cancellationToken);
 
         using var responseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
         return await JsonSerializer.DeserializeAsync<TResponse>(responseContent, cancellationToken: cancellationToken)

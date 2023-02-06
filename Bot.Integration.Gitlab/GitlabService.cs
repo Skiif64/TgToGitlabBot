@@ -61,6 +61,10 @@ public class GitlabService : IGitlabService
                 );
             return true;
         }
+        catch (NotFoundException exception)
+        {
+            return false;
+        }
         catch (ValidationException exception)
         {
             _logger.LogCritical($"Error during checking existing file: {exception.Message}");

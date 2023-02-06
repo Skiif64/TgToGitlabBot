@@ -2,5 +2,5 @@
 
 public interface IExceptionParser
 {
-    Exception Parse(string json);
+    Task<Exception> ParseAsync(HttpResponseMessage response, CancellationToken cancellationToken);
 }
