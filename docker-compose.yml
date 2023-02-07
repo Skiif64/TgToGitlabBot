@@ -5,9 +5,9 @@ services:
     image: ${DOCKER_REGISTRY-}botapp
     build:
       context: .
-      dockerfile: Bot.ConsoleApp/Dockerfile
+      dockerfile: Bot.App/Dockerfile
     depends_on:
-        - telegram-local-api
+        - telegram-local-api    
     volumes:
         - ./conf:/app/conf 
         - telegram-bot-api-data:/var/lib/telegram-bot-api

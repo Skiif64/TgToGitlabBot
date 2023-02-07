@@ -3,8 +3,11 @@ using Bot.Integration.Telegram;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.SetBasePath(Directory.GetCurrentDirectory() + "/conf");
-// Add services to the container.
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("conf/appsettings.json")
+    .AddEnvironmentVariables();
+
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.Configure<GitLabOptions>(builder.Configuration.GetRequiredSection(GitLabOptions.Path));
