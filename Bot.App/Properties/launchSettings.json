@@ -10,9 +10,7 @@
   },
   "profiles": {
     "Bot.App": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "commandName": "Project",      
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
