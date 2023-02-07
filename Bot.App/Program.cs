@@ -8,7 +8,6 @@ builder.Configuration
     .AddJsonFile("conf/appsettings.json")
     .AddEnvironmentVariables();
 
-
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.Configure<GitLabOptions>(builder.Configuration.GetRequiredSection(GitLabOptions.Path));
 builder.Services.Configure<TelegramBotOptions>(builder.Configuration.GetRequiredSection(TelegramBotOptions.Path));

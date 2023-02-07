@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Bot.Integration.Gitlab.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 
@@ -26,9 +28,31 @@ namespace Bot.App.Controllers
             if (update is null)
                 return BadRequest();
             _logger.LogInformation("Recived message");
-            await _updateHandler.HandleUpdateAsync(_client, update, cancellationToken);
-            
-            return Ok();
+            try
+            {
+                await _updateHandler.HandleUpdateAsync(_client, update, cancellationToken);
+                return Ok();
+            }
+            catch (ApiRequestException exception)
+            {
+                _logger.LogError($"Telegram API error. Error code: {exception.ErrorCode}. Message: {exception.Message}");
+                return BadRequest();
+            }
+            catch (ValidationException exception)
+            {
+                _logger.LogError($"Exception occured: {exception.Message}.");
+                return BadRequest(exception.Message);
+            }
+            catch (AuthentificationException exception)
+            {
+                _logger.LogError($"Exception occured: {exception.Message}.");
+                return Unauthorized(exception.Message);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogCritical($"Exception occured: {exception.Message}.");
+                throw;
+            }
         }
     }
 }
