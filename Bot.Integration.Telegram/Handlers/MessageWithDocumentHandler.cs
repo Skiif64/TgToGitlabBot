@@ -25,10 +25,10 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     }
 
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
-    {
+    {  
         var document = data.Document!;
         var content = await DownloadFileAsync(client, document, cancellationToken);
-        if (content.LongCount() > (long)int.MaxValue)
+        if (content.Length >= int.MaxValue)
             throw new TooLargeException(nameof(content), content.LongCount(), int.MaxValue);
         var message = $"{document.FileName} from {data.From!.FirstName} {data.From!.LastName}";
 
