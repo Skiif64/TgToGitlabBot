@@ -19,6 +19,7 @@ builder.ConfigureServices((ctx, services) =>
 {
     services.Configure<GitLabOptions>(ctx.Configuration.GetRequiredSection(GitLabOptions.Path));
     services.Configure<TelegramBotOptions>(ctx.Configuration.GetRequiredSection(TelegramBotOptions.Path));
+    services.AddTransient<HttpClient>();
     services.AddGitlab();
     services.AddTelegramBot();
 });

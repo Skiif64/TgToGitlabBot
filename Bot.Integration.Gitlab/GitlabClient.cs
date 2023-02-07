@@ -8,15 +8,17 @@ public class GitlabClient : IGitlabClient
 {
     private const string BASE_URL = "https://gitlab.com";
     private readonly IExceptionParser _exceptionParser;
+    private readonly HttpClient _httpClient;
 
-    public GitlabClient(IExceptionParser exceptionParser)
+    public GitlabClient(IExceptionParser exceptionParser, HttpClient httpClient)
     {
         _exceptionParser = exceptionParser;
+        _httpClient = httpClient;
     }
 
     public async Task<TResponse> SendAsync<TResponse>(IGitlabRequest<TResponse> request, CancellationToken cancellationToken)
     {
-        var requestMessage = new HttpRequestMessage
+        using var requestMessage = new HttpRequestMessage
         {            
             RequestUri = new Uri(new Uri(BASE_URL), request.Url),
             Method = request.Method,
@@ -24,15 +26,13 @@ public class GitlabClient : IGitlabClient
         };
         if (request.Headers is not null && request.Headers.Count != 0)
             foreach (var (key, value) in request.Headers)
-                requestMessage.Headers.Add(key, value);
-        using var httpClient = new HttpClient();       
-        var response = await httpClient.SendAsync(requestMessage, cancellationToken);
+                requestMessage.Headers.Add(key, value);         
+        using HttpResponseMessage response = await _httpClient.SendAsync(requestMessage, cancellationToken);        
 
         if (!response.IsSuccessStatusCode)
-            throw await _exceptionParser.ParseAsync(response, cancellationToken);
-
-        using var responseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
+            throw await _exceptionParser.ParseAsync(response, cancellationToken);       
+        using var responseContent = await response.Content.ReadAsStreamAsync(cancellationToken);        
         return await JsonSerializer.DeserializeAsync<TResponse>(responseContent, cancellationToken: cancellationToken)
-            ?? throw new HttpRequestException("Error occured", null, response.StatusCode); // TODO: ???
+            ?? throw new HttpRequestException("Error occured while deserializer json", null, response.StatusCode); // TODO: ???
     }
 }

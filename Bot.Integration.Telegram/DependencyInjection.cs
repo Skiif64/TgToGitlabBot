@@ -33,7 +33,10 @@ public static class DependencyInjection
         });
 
         services.AddSingleton<ITelegramBotClient, TelegramBotClient>(sp =>
-            new TelegramBotClient(sp.GetRequiredService<TelegramBotClientOptions>()));
+            new TelegramBotClient(
+                sp.GetRequiredService<TelegramBotClientOptions>(),
+                sp.GetRequiredService<HttpClient>()
+                ));
         services.AddSingleton<IUpdateHandler, TelegramBotUpdateHandler>();
         services.AddHostedService<TelegramBot>();
         services.AddTransient<IHandler<Message>, MessageWithDocumentHandler>();
