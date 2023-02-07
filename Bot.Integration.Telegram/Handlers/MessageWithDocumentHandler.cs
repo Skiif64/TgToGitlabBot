@@ -25,7 +25,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
 
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
     {
-        var document = data.Document!;        
+        var document = data.Document!;
         var content = await DownloadFileAsync(client, document, cancellationToken);
         var message = $"{document.FileName} from {data.From!.FirstName} {data.From!.LastName}";
 
@@ -62,10 +62,10 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     }
 
     private static async Task<string> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
-    {        
+    {
         await using (var stream = new MemoryStream())
         {
-        await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
+            await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
             using (var br = new BinaryReader(stream))
             {
                 stream.Position = 0;
