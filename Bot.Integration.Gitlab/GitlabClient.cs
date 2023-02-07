@@ -1,5 +1,6 @@
 ﻿using Bot.Integration.Gitlab.Abstractions;
 using Bot.Integration.Gitlab.Requests.Base;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace Bot.Integration.Gitlab;
@@ -9,18 +10,20 @@ public class GitlabClient : IGitlabClient
     private const string BASE_URL = "https://gitlab.com";
     private readonly IExceptionParser _exceptionParser;
     private readonly HttpClient _httpClient;
+    private readonly GitLabOptions _gitLabOptions;
 
-    public GitlabClient(IExceptionParser exceptionParser, HttpClient httpClient)
+    public GitlabClient(IExceptionParser exceptionParser, HttpClient httpClient, IOptionsSnapshot<GitLabOptions> gitLabOptions)
     {
         _exceptionParser = exceptionParser;
         _httpClient = httpClient;
+        _gitLabOptions = gitLabOptions.Value;
     }
 
     public async Task<TResponse> SendAsync<TResponse>(IGitlabRequest<TResponse> request, CancellationToken cancellationToken)
     {
         using var requestMessage = new HttpRequestMessage
         {            
-            RequestUri = new Uri(new Uri(BASE_URL), request.Url),
+            RequestUri = new Uri(new Uri(_gitLabOptions.BaseUrl), request.Url),
             Method = request.Method,
             Content = request.ToHttpContent()
         };

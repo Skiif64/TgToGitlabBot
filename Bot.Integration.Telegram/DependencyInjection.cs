@@ -15,7 +15,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<ReceiverOptions>(new ReceiverOptions
         {
-            AllowedUpdates = new[] { UpdateType.Message },
+            AllowedUpdates = new[] { UpdateType.Message, UpdateType.ChannelPost },
             ThrowPendingUpdates = true,
         });
         services.AddSingleton<TelegramBotClientOptions>(sp =>

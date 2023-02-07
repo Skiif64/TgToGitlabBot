@@ -34,7 +34,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
 
         if (!string.IsNullOrWhiteSpace(data.Caption))
             message += $" message: {data.Caption}";
-
+        
         var commitInfo = new CommitInfo
         {
             From = data.From!.Username!,

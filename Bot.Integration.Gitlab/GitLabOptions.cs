@@ -3,6 +3,7 @@
 public class GitLabOptions
 {
     public const string Path = "Gitlab";
+    public string BaseUrl { get; init; } = string.Empty;
     public Dictionary<string, GitlabChatOptions> ChatOptions { get; init; } = null!;
 }
 
