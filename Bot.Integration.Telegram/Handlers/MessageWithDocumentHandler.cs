@@ -1,5 +1,6 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
+using Bot.Core.Exceptions;
 using Bot.Integration.Telegram.Handlers.Base;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -27,6 +28,8 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     {
         var document = data.Document!;
         var content = await DownloadFileAsync(client, document, cancellationToken);
+        if (content.LongCount() > (long)int.MaxValue)
+            throw new TooLargeException(nameof(content), content.LongCount(), int.MaxValue);
         var message = $"{document.FileName} from {data.From!.FirstName} {data.From!.LastName}";
 
         if (!string.IsNullOrWhiteSpace(data.Caption))
