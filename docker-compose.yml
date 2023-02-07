@@ -6,3 +6,22 @@ services:
     build:
       context: .
       dockerfile: Bot.ConsoleApp/Dockerfile
+    depends_on:
+        - telegram-local-api
+    volumes:
+        - ./conf:/app/conf  
+
+  telegram-local-api:
+    image: aiogram/telegram-bot-api
+    
+    environment:
+      TELEGRAM_API_ID: ${TELEGRAM_API_ID}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH}
+      TELEGRAM_LOCAL: true
+    volumes:
+        - telegram-bot-api-data:/var/lib/telegram-bot-api
+    ports:
+      - 8081:8081
+volumes:
+  telegram-bot-api-data:  
+    

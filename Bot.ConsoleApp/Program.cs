@@ -12,7 +12,7 @@ DotEnv.Load();
 #endif
 
 builder.ConfigureAppConfiguration((host, cfg) => cfg
-.AddJsonFile("appsettings.json", false, true)
+.AddJsonFile("conf/appsettings.json", false, true)
 .AddEnvironmentVariables());
 
 builder.ConfigureServices((ctx, services) =>

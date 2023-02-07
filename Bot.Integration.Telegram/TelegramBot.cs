@@ -22,6 +22,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
         _updateHandler = updateHandler;
         _logger = logger;
         _receiverOptions = receiverOptions;
+
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
