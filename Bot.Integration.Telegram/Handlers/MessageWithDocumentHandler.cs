@@ -61,15 +61,30 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         }
     }
 
-    private static async Task<string> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
+    private async Task<string> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
     {
-        await using (var stream = new MemoryStream())
+        if (client.LocalBotServer)
         {
-            await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
-            using (var br = new BinaryReader(stream))
+            var fileInfo = await client.GetFileAsync(document.FileId, cancellationToken);
+            await using (var fs = new FileStream(fileInfo.FilePath, FileMode.Open))
             {
-                stream.Position = 0;
-                return Convert.ToBase64String(br.ReadBytes((int)stream.Length));
+                using (var br = new BinaryReader(fs))
+                {
+                    return Convert.ToBase64String(br.ReadBytes((int)fs.Length));
+                }
+            }
+
+        }
+        else
+        {
+            await using (var stream = new MemoryStream())
+            {
+                await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
+                using (var br = new BinaryReader(stream))
+                {
+                    stream.Position = 0;
+                    return Convert.ToBase64String(br.ReadBytes((int)stream.Length));
+                }
             }
         }
 
