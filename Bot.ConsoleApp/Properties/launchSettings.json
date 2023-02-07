@@ -2,6 +2,9 @@
   "profiles": {
     "Bot.ConsoleApp": {
       "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
     }
   }
 }

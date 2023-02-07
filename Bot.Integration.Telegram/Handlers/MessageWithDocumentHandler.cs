@@ -26,18 +26,17 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
     {
         var document = data.Document!;
-        await using var stream = new MemoryStream();
-        await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
+        var content = await DownloadFileAsync(client, document, cancellationToken);
         var message = $"{document.FileName} from {data.From!.FirstName} {data.From!.LastName}";
 
         if (!string.IsNullOrWhiteSpace(data.Caption))
             message += $" message: {data.Caption}";
-        
+
         var commitInfo = new CommitInfo
         {
             From = data.From!.Username!,
             FromChatId = data.Chat.Id,
-            Content = stream,
+            Content = content,
             FileName = document.FileName!,
             Message = message
         };
@@ -60,5 +59,33 @@ internal class MessageWithDocumentHandler : IHandler<Message>
                cancellationToken: cancellationToken
                 );
         }
+    }
+
+    private async Task<string> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
+    {
+        if (client.LocalBotServer)
+        {
+            var fileInfo = await client.GetFileAsync(document.FileId, cancellationToken);
+            await using (var fs = new FileStream(fileInfo.FilePath, FileMode.Open))
+            {
+                using (var br = new BinaryReader(fs))
+                {
+                    return Convert.ToBase64String(br.ReadBytes((int)fs.Length));
+                }
+            }
+        }
+        else
+        {
+            await using (var stream = new MemoryStream())
+            {
+                await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
+                using (var br = new BinaryReader(stream))
+                {
+                    stream.Position = 0;
+                    return Convert.ToBase64String(br.ReadBytes((int)stream.Length));
+                }
+            }
+        }
+
     }
 }
