@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("conf/appsettings.json")
+    .AddJsonFile("conf/appsettings.json", false, true)
     .AddEnvironmentVariables();
 
 builder.Services.AddControllers().AddNewtonsoftJson();
