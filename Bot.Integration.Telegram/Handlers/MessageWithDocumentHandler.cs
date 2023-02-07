@@ -73,7 +73,6 @@ internal class MessageWithDocumentHandler : IHandler<Message>
                     return Convert.ToBase64String(br.ReadBytes((int)fs.Length));
                 }
             }
-
         }
         else
         {
