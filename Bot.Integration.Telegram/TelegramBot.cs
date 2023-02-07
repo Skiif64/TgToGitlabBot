@@ -28,7 +28,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
-    {
+    {       
         if (_options.UseWebhook)
             return StartWebhookAsync(cancellationToken);
         else
@@ -37,6 +37,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
 
     public async Task StartPollingAsync(CancellationToken cancellationToken)
     {
+        await _client.DeleteWebhookAsync(cancellationToken: cancellationToken);
         _client.StartReceiving(
              _updateHandler,
              _receiverOptions,
@@ -56,6 +57,8 @@ internal class TelegramBot : ITelegramBot, IHostedService
             url: _options.WebhookUrl,
             cancellationToken: cancellationToken
             );
+        var me = await _client.GetMeAsync(cancellationToken);
+        _logger.LogInformation($"Bot @{me.Username} is started");
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)

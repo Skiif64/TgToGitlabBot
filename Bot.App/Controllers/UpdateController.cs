@@ -6,7 +6,7 @@ using Telegram.Bot.Types;
 
 namespace Bot.App.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UpdateController : ControllerBase
     {
@@ -25,7 +25,7 @@ namespace Bot.App.Controllers
         {
             if (update is null)
                 return BadRequest();
-
+            _logger.LogInformation("Recived message");
             await _updateHandler.HandleUpdateAsync(_client, update, cancellationToken);
             
             return Ok();
