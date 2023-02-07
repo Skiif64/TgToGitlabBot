@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  bot.consoleapp:
-    image: ${DOCKER_REGISTRY-}botconsoleapp
+  bot.app:
+    image: ${DOCKER_REGISTRY-}botapp
     build:
       context: .
       dockerfile: Bot.ConsoleApp/Dockerfile
