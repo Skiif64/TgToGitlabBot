@@ -29,7 +29,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     {        
         var document = data.Document!;
         var content = await DownloadFileAsync(client, document, cancellationToken);
-        if (content.Length >= int.MaxValue)
+        if (content.Length >= 2_000_000)
             throw new TooLargeException(nameof(content), content.LongCount(), int.MaxValue);
         string message;
         string from;
