@@ -37,8 +37,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         {
             from = data.AuthorSignature;            
             message = data.Caption;
-            if (message is not null && message.StartsWith('\n'))
-                message = message.Substring(1);
+            message += $"\nиз: {data.Chat.Title}";
         }
         else
         {
@@ -47,7 +46,8 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         }
 
         message += $"\nот: {from}";
-
+        if (message.StartsWith('\n'))
+            message = message.Substring(1);
 
         var commitInfo = new CommitInfo
         {

@@ -10,6 +10,7 @@ public class GitLabOptions
 public class GitlabChatOptions
 {
     public string Project { get; init; } = string.Empty;
+    public string? DisplayProjectName { get; init; }
     public string BranchName { get; init; } = string.Empty;
     public string AuthorUsername { get; init; } = string.Empty;  //TODO: Maybe remove  
     public string AuthorEmail { get; init; } = string.Empty;
