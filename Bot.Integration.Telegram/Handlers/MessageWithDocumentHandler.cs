@@ -29,8 +29,8 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     {
         var document = data.Document!;
         var content = await DownloadFileAsync(client, document, cancellationToken);
-        if (content.Length >= 2_000_000)
-            throw new TooLargeException(nameof(content), content.LongCount(), int.MaxValue);
+        if (content.Length >= 80_000_000)
+            throw new TooLargeException(nameof(content), content.Length, 80_000_000);
         string message;
         string from;
         if (data.Chat.Type is ChatType.Channel)
