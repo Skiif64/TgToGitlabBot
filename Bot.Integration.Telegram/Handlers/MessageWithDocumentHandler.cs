@@ -4,6 +4,7 @@ using Bot.Core.Exceptions;
 using Bot.Integration.Telegram.Handlers.Base;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Bot.Integration.Telegram.Handlers;
 
@@ -25,19 +26,30 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     }
 
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
-    {  
+    {        
         var document = data.Document!;
         var content = await DownloadFileAsync(client, document, cancellationToken);
         if (content.Length >= int.MaxValue)
             throw new TooLargeException(nameof(content), content.LongCount(), int.MaxValue);
-        var message = $"{document.FileName} from {data.From!.FirstName} {data.From!.LastName}";
+        string message;
+        string from;
+        if (data.Chat.Type is ChatType.Channel)
+        {
+            from = data.Chat.Title;
+            message = $"{document.FileName} из канала {from}";
+        }
+        else
+        {
+            from = data.From.FirstName + " " + data.From.LastName;
+            message = $"{document.FileName} от {from}";
+        }
 
         if (!string.IsNullOrWhiteSpace(data.Caption))
-            message += $" message: {data.Caption}";
+            message += $"\nописание: {data.Caption}";
         
         var commitInfo = new CommitInfo
         {
-            From = data.From!.Username!,
+            From = from,
             FromChatId = data.Chat.Id,
             Content = content,
             FileName = document.FileName!,

@@ -37,7 +37,7 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
-    {     
+    {   
         var action = update.Type switch
         {
             UpdateType.Message => OnMessageRecieved(update.Message!, botClient, cancellationToken),

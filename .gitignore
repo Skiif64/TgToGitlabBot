@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /Test.CMD/.env
 /.env
 /conf/appsettings.json
+/conf/appsettings_prod.json
