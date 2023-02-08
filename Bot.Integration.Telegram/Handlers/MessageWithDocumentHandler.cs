@@ -26,7 +26,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     }
 
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
-    {        
+    {
         var document = data.Document!;
         var content = await DownloadFileAsync(client, document, cancellationToken);
         if (content.Length >= 2_000_000)
@@ -35,8 +35,10 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         string from;
         if (data.Chat.Type is ChatType.Channel)
         {
-            from = data.Chat.Title;
-            message = $"{document.FileName} из канала {from}";
+            from = data.AuthorSignature;            
+            message = data.Caption;
+            if (message is not null && message.StartsWith('\n'))
+                message = message.Substring(1);
         }
         else
         {
@@ -44,9 +46,9 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             message = $"{document.FileName} от {from}";
         }
 
-        if (!string.IsNullOrWhiteSpace(data.Caption))
-            message += $"\nописание: {data.Caption}";
-        
+        message += $"\nот: {from}";
+
+
         var commitInfo = new CommitInfo
         {
             From = from,

@@ -366,3 +366,4 @@ FodyWeavers.xsd
 /.env
 /conf/appsettings.json
 /conf/appsettings_prod.json
+/conf/appsettings_test.json
