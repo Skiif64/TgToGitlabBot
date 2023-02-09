@@ -8,4 +8,5 @@ internal class GitOptions
     public string Branch { get; init; } = string.Empty;
     public string Url { get; init; } = string.Empty;
     public string LocalPath { get; init; } = string.Empty;
+    public string? FilePath { get; init; }
 }
