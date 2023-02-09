@@ -100,27 +100,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             {
                 if (fs.Length >= 200_000_000)
                     throw new TooLargeException(nameof(fs), fs.Length, 200_000_000);
-                using (var detector = new FileTypeDetector(fs))
-                {
-                    if (detector.IsBinary())
-                    {
-                        using (var br = new BinaryReader(fs))
-                        {
-                            return (Convert.ToBase64String(br.ReadBytes((int)fs.Length)), "base64");
-                        }
-                    }
-                    else
-                    {
-                        var encoding = Encoding.GetEncoding("windows-1251");
-                        if (detector.IsUtf8Encoded())
-                            encoding = Encoding.UTF8;
-
-                        using (var sr = new StreamReader(fs, encoding))
-                        {
-                            return (sr.ReadToEnd(), "text");
-                        }
-                    }
-                }
+                return GetStringFromStream(fs);
             }
         }
         else
@@ -130,13 +110,37 @@ internal class MessageWithDocumentHandler : IHandler<Message>
                 await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
                 if (stream.Length >= 200_000_000)
                     throw new TooLargeException(nameof(stream), stream.Length, 200_000_000);
-                using (var br = new BinaryReader(stream))
-                {
+                
                     stream.Position = 0;
-                    return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
-                }
+                    return GetStringFromStream(stream);
+                
             }
         }
 
+    }
+
+    private (string Content, string ContentType) GetStringFromStream(Stream stream)
+    {
+        using (var detector = new FileTypeDetector(stream))
+        {
+            if (detector.IsBinary())
+            {
+                using (var br = new BinaryReader(stream))
+                {
+                    return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
+                }
+            }
+            else
+            {
+                var encoding = Encoding.GetEncoding("windows-1251");
+                if (detector.IsUtf8Encoded())
+                    encoding = Encoding.UTF8;
+
+                using (var sr = new StreamReader(stream, encoding))
+                {
+                    return (sr.ReadToEnd(), "text");
+                }
+            }
+        }
     }
 }
