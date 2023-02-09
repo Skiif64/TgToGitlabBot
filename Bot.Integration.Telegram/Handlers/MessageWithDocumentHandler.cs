@@ -121,26 +121,30 @@ internal class MessageWithDocumentHandler : IHandler<Message>
 
     private (string Content, string ContentType) GetStringFromStream(Stream stream)
     {
-        using (var detector = new FileTypeDetector(stream))
+        using (var br = new BinaryReader(stream))
         {
-            if (detector.IsBinary())
-            {
-                using (var br = new BinaryReader(stream))
-                {
-                    return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
-                }
-            }
-            else
-            {
-                var encoding = Encoding.GetEncoding("windows-1251");
-                if (detector.IsUtf8Encoded())
-                    encoding = Encoding.UTF8;
-
-                using (var sr = new StreamReader(stream, encoding))
-                {
-                    return (sr.ReadToEnd(), "text");
-                }
-            }
+            return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
         }
+        //using (var detector = new FileTypeDetector(stream))
+        //{
+        //    if (detector.IsBinary())
+        //    {
+        //        using (var br = new BinaryReader(stream))
+        //        {
+        //            return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var encoding = Encoding.GetEncoding("windows-1251");
+        //        if (detector.IsUtf8Encoded())
+        //            encoding = Encoding.UTF8;
+
+        //        using (var sr = new StreamReader(stream, encoding))
+        //        {
+        //            return (sr.ReadToEnd(), "text");
+        //        }
+        //    }
+        //}
     }
 }
