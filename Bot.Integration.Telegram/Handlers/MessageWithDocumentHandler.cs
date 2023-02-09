@@ -26,11 +26,9 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     }
 
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
-    {
+    { 
         var document = data.Document!;
-        var content = await DownloadFileAsync(client, document, cancellationToken);
-        if (content.Length >= 80_000_000)
-            throw new TooLargeException(nameof(content), content.Length, 80_000_000);
+        var content = await DownloadFileAsync(client, document, cancellationToken);        
         string message;
         string from;
         if (data.Chat.Type is ChatType.Channel)
@@ -85,6 +83,8 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             var fileInfo = await client.GetFileAsync(document.FileId, cancellationToken);
             await using (var fs = new FileStream(fileInfo.FilePath, FileMode.Open))
             {
+                if (fs.Length >= 200_000_000)
+                    throw new TooLargeException(nameof(fs), fs.Length, 200_000_000);
                 using (var br = new BinaryReader(fs))
                 {
                     return Convert.ToBase64String(br.ReadBytes((int)fs.Length));
@@ -96,6 +96,8 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             await using (var stream = new MemoryStream())
             {
                 await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
+                if (stream.Length >= 200_000_000)
+                    throw new TooLargeException(nameof(stream), stream.Length, 200_000_000);
                 using (var br = new BinaryReader(stream))
                 {
                     stream.Position = 0;
