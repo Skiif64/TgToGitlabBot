@@ -16,22 +16,20 @@ internal class FileTypeDetector
     {
         'о', 'О', 'е', 'Е', 'а', 'А', 'и', 'И', 'н', 'Н', 'т', 'Т', 'с', 'С', 'р', 'Р'
     };
-    
+
     public static bool IsBinary(Stream stream)
     {
         var streamPosition = stream.Position;
-        using (var reader = new StreamReader(stream))
+        var reader = new StreamReader(stream);
+        int ch;
+        while ((ch = reader.Read()) != -1)
         {
-            int ch;
-            while ((ch = reader.Read()) != -1)
-            {
-                if (IsControlChar(ch))
-                {
-                    stream.Position = streamPosition;
-                    return true;
-                }
+            if (IsControlChar(ch))
+            {                
+                stream.Position = streamPosition;
+                return true;
             }
-        }
+        }        
         stream.Position = streamPosition;
         return false;
     }
@@ -39,25 +37,25 @@ internal class FileTypeDetector
     public static bool IsUtf8Encoded(Stream stream)
     {
         var streamPosition = stream.Position;
-        using (var reader = new StreamReader(stream))
+        var reader = new StreamReader(stream); //TODO: Dispose
+
+        int ch;
+        while ((ch = reader.Read()) != -1)
         {
-            int ch;
-            while ((ch = reader.Read()) != -1)
+            foreach (var utfChar in __utfChars)
             {
-                foreach(var utfChar in __utfChars)
-                {
-                    if(ch == utfChar)
-                    {
-                        stream.Position = streamPosition;
-                        return true;
-                    }
+                if (ch == utfChar)
+                {                   
+                    stream.Position = streamPosition;
+                    return true;
                 }
             }
         }
+        
         stream.Position = streamPosition;
         return false;
     }
-    
+
 
     private static bool IsControlChar(int ch)
     {
