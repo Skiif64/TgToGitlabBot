@@ -100,22 +100,25 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             {
                 if (fs.Length >= 200_000_000)
                     throw new TooLargeException(nameof(fs), fs.Length, 200_000_000);
-                if (FileTypeDetector.IsBinary(fs))
+                using (var detector = new FileTypeDetector(fs))
                 {
-                    using (var br = new BinaryReader(fs))
+                    if (detector.IsBinary())
                     {
-                        return (Convert.ToBase64String(br.ReadBytes((int)fs.Length)), "base64");
+                        using (var br = new BinaryReader(fs))
+                        {
+                            return (Convert.ToBase64String(br.ReadBytes((int)fs.Length)), "base64");
+                        }
                     }
-                }
-                else
-                {
-                    var encoding = Encoding.GetEncoding("windows-1251");
-                    if (FileTypeDetector.IsUtf8Encoded(fs))
-                        encoding = Encoding.UTF8;
-
-                    using (var sr = new StreamReader(fs, encoding))
+                    else
                     {
-                        return (sr.ReadToEnd(), "text");
+                        var encoding = Encoding.GetEncoding("windows-1251");
+                        if (detector.IsUtf8Encoded())
+                            encoding = Encoding.UTF8;
+
+                        using (var sr = new StreamReader(fs, encoding))
+                        {
+                            return (sr.ReadToEnd(), "text");
+                        }
                     }
                 }
             }

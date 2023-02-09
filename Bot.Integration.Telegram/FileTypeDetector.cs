@@ -1,8 +1,6 @@
-﻿using System.IO;
+﻿namespace Bot.Integration.Telegram;
 
-namespace Bot.Integration.Telegram;
-
-internal class FileTypeDetector
+internal class FileTypeDetector : IDisposable
 {
     private static readonly Dictionary<string, char> __controlChars = new()
     {
@@ -17,43 +15,62 @@ internal class FileTypeDetector
         'о', 'О', 'е', 'Е', 'а', 'А', 'и', 'И', 'н', 'Н', 'т', 'Т', 'с', 'С', 'р', 'Р'
     };
 
-    public static bool IsBinary(Stream stream)
+    private readonly Stream _stream;
+    private readonly StreamReader _reader;
+    private bool _disposed;
+
+    public FileTypeDetector(Stream stream)
     {
-        var streamPosition = stream.Position;
-        var reader = new StreamReader(stream);
+        _stream = stream;
+        _reader = new StreamReader(stream);
+    }    
+
+    public bool IsBinary()
+    {
+        if (_disposed) throw new ObjectDisposedException(nameof(FileTypeDetector));
+        var streamPosition = _stream.Position;
+        
         int ch;
-        while ((ch = reader.Read()) != -1)
+        while ((ch = _reader.Read()) != -1)
         {
             if (IsControlChar(ch))
             {                
-                stream.Position = streamPosition;
+                _stream.Position = streamPosition;
                 return true;
             }
         }        
-        stream.Position = streamPosition;
+        _stream.Position = streamPosition;
         return false;
     }
 
-    public static bool IsUtf8Encoded(Stream stream)
+    public bool IsUtf8Encoded()
     {
-        var streamPosition = stream.Position;
-        var reader = new StreamReader(stream); //TODO: Dispose
+        if (_disposed) throw new ObjectDisposedException(nameof(FileTypeDetector));
+        var streamPosition = _stream.Position;        
 
         int ch;
-        while ((ch = reader.Read()) != -1)
+        while ((ch = _reader.Read()) != -1)
         {
             foreach (var utfChar in __utfChars)
             {
                 if (ch == utfChar)
                 {                   
-                    stream.Position = streamPosition;
+                    _stream.Position = streamPosition;
                     return true;
                 }
             }
         }
         
-        stream.Position = streamPosition;
+        _stream.Position = streamPosition;
         return false;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _stream.Dispose();
+        _reader.Dispose();
+        _disposed = true;
     }
 
 
