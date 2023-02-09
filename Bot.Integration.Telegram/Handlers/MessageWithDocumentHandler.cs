@@ -26,53 +26,66 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     }
 
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
-    { 
-        var document = data.Document!;
-        var content = await DownloadFileAsync(client, document, cancellationToken);        
-        string message;
-        string from;
-        if (data.Chat.Type is ChatType.Channel)
+    {
+        try
         {
-            from = data.AuthorSignature;            
-            message = data.Caption;
-            message += $"\nиз: {data.Chat.Title}";
-        }
-        else
-        {
-            from = data.From.FirstName + " " + data.From.LastName;
-            message = $"{document.FileName} от {from}";
-        }
+            var document = data.Document!;
+            var content = await DownloadFileAsync(client, document, cancellationToken);
+            string message;
+            string from;
+            if (data.Chat.Type is ChatType.Channel)
+            {
+                from = data.AuthorSignature;
+                message = data.Caption;
+                message += $"\nиз: {data.Chat.Title}";
+            }
+            else
+            {
+                from = data.From.FirstName + " " + data.From.LastName;
+                message = $"{document.FileName} от {from}";
+            }
 
-        message += $"\nот: {from}";
-        if (message.StartsWith('\n'))
-            message = message.Substring(1);
+            message += $"\nот: {from}";
+            if (message.StartsWith('\n'))
+                message = message.Substring(1);
 
-        var commitInfo = new CommitInfo
-        {
-            From = from,
-            FromChatId = data.Chat.Id,
-            Content = content,
-            FileName = document.FileName!,
-            Message = message
-        };
-        var result = await _gitlabService.CommitFileAsync(commitInfo, cancellationToken);
-        if (result)
+            var commitInfo = new CommitInfo
+            {
+                From = from,
+                FromChatId = data.Chat.Id,
+                Content = content,
+                FileName = document.FileName!,
+                Message = message
+            };
+            var result = await _gitlabService.CommitFileAsync(commitInfo, cancellationToken);
+            if (result)
+            {
+                await client.SendTextMessageAsync(
+                    chatId: data.Chat.Id,
+                    text: $"Файл {commitInfo.FileName} успешно отправлен!",
+                    replyToMessageId: data.MessageId,
+                    cancellationToken: cancellationToken
+                    );
+            }
+            else
+            {
+                await client.SendTextMessageAsync(
+                   chatId: data.Chat.Id,
+                   text: $"Произошла ошибка при передаче файла {commitInfo.FileName}",
+                   replyToMessageId: data.MessageId,
+                   cancellationToken: cancellationToken
+                    );
+            }
+        }
+        catch (Exception ex)
         {
             await client.SendTextMessageAsync(
-                chatId: data.Chat.Id,
-                text: $"Файл {commitInfo.FileName} успешно отправлен!",
-                replyToMessageId: data.MessageId,
-                cancellationToken: cancellationToken
-                );
-        }
-        else
-        {
-            await client.SendTextMessageAsync(
-               chatId: data.Chat.Id,
-               text: $"Произошла ошибка при передаче файла {commitInfo.FileName}",
-               replyToMessageId: data.MessageId,
-               cancellationToken: cancellationToken
-                );
+                   chatId: data.Chat.Id,
+                   text: $"Произошла ошибка при передаче файла",
+                   replyToMessageId: data.MessageId,
+                   cancellationToken: cancellationToken
+                    );
+            throw;
         }
     }
 

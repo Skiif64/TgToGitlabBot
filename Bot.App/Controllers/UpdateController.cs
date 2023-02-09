@@ -52,7 +52,7 @@ namespace Bot.App.Controllers
             catch(TooLargeException exception)
             {
                 _logger.LogError($"Too large file recieved: {exception.Message}");
-                return BadRequest();
+                return Accepted();
             }
             catch (Exception exception)
             {
