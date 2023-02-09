@@ -83,7 +83,7 @@ public class GitlabService : IGitlabService
                         new UpdateRequest(file.Message,
                         new[]
                         {
-                    new UpdateAction(options.FilePath + file.FileName, file.Content)
+                    new UpdateAction(options.FilePath + file.FileName, file.Content, file.ContentType)
                         },
                         options),
                         cancellationToken);
@@ -95,7 +95,7 @@ public class GitlabService : IGitlabService
                          new CreateRequest(file.Message,
                          new[]
                          {
-                 new CreateAction(options.FilePath + file.FileName, file.Content)
+                 new CreateAction(options.FilePath + file.FileName, file.Content, file.ContentType)
                          },
                          options),
                          cancellationToken

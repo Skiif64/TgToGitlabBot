@@ -2,6 +2,7 @@
 using Bot.Integration.Telegram.Handlers.Base;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Text;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -12,12 +13,8 @@ namespace Bot.Integration.Telegram;
 public static class DependencyInjection
 {
     public static IServiceCollection AddTelegramBot(this IServiceCollection services)
-    {
-        services.AddSingleton<ReceiverOptions>(new ReceiverOptions
-        {
-            AllowedUpdates = new[] { UpdateType.Message, UpdateType.ChannelPost },
-            ThrowPendingUpdates = true,
-        });
+    {        
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         services.AddSingleton<TelegramBotClientOptions>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<TelegramBotOptions>>().Value;
@@ -32,11 +29,7 @@ public static class DependencyInjection
                             );
         });
 
-        services.AddSingleton<ITelegramBotClient, TelegramBotClient>(sp =>
-            new TelegramBotClient(
-                sp.GetRequiredService<TelegramBotClientOptions>(),
-                sp.GetRequiredService<HttpClient>()
-                ));
+        services.AddTransient<ITelegramBotClient, TelegramBotClientWrapper>();
         services.AddSingleton<IUpdateHandler, TelegramBotUpdateHandler>();
         services.AddHostedService<TelegramBot>();
         services.AddTransient<IHandler<Message>, MessageWithDocumentHandler>();

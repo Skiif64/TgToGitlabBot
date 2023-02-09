@@ -12,16 +12,13 @@ namespace Bot.Integration.Telegram;
 internal class TelegramBotUpdateHandler : IUpdateHandler
 {    
     private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<TelegramBotUpdateHandler> _logger;
-    private readonly ReceiverOptions _receiverOptions;
+    private readonly ILogger<TelegramBotUpdateHandler> _logger;    
 
     public TelegramBotUpdateHandler(ILogger<TelegramBotUpdateHandler> logger,
-        IServiceProvider serviceProvider,
-        ReceiverOptions receiverOptions)
+        IServiceProvider serviceProvider)
     {
         _logger = logger;
-        _serviceProvider = serviceProvider;
-        _receiverOptions = receiverOptions;
+        _serviceProvider = serviceProvider;        
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -32,7 +29,7 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
             _ => exception.Message
         };        
         _logger.LogError(message);        
-        botClient.StartReceiving(this, _receiverOptions, cancellationToken);
+        //botClient.StartReceiving(this, _receiverOptions, cancellationToken);
         return Task.CompletedTask;
     }
 

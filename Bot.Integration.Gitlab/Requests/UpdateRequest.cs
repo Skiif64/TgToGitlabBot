@@ -1,4 +1,4 @@
-﻿using Bot.Integration.Gitlab.Primitives.Base;
+﻿using Bot.Integration.Gitlab.Primitives;
 using System.Net.Http.Json;
 
 namespace Bot.Integration.Gitlab.Requests;

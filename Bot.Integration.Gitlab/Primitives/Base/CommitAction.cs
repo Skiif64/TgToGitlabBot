@@ -13,15 +13,17 @@ internal abstract class CommitAction
     [JsonPropertyName("encoding")]
     public string? Encoding { get; init; } = "base64";
 
-    protected CommitAction(string filepath, string? content)
+    protected CommitAction(string filepath, string? content, string? encoding = null)
     {
         if (string.IsNullOrWhiteSpace(filepath))
             throw new ArgumentNullException(nameof(filepath));
         FilePath = filepath;
         Content = content;
+        if(encoding is not null)
+            Encoding = encoding;
     }
 
-    protected CommitAction(string filepath, Stream contentStream)
+    protected CommitAction(string filepath, Stream contentStream, string? encoding = null)
     {
         if (contentStream is null)
             throw new ArgumentNullException(nameof(contentStream));
@@ -31,6 +33,8 @@ internal abstract class CommitAction
             contentStream.Position = 0;
             Content = Convert.ToBase64String(br.ReadBytes((int)br.BaseStream.Length));
         }
+        if (encoding is not null)
+            Encoding = encoding;
     }
 
 

@@ -2,6 +2,7 @@
 using Bot.Core.Entities;
 using Bot.Core.Exceptions;
 using Bot.Integration.Telegram.Handlers.Base;
+using System.Text;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -53,7 +54,8 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             {
                 From = from,
                 FromChatId = data.Chat.Id,
-                Content = content,
+                Content = content.Content,
+                ContentType = content.ContentType,
                 FileName = document.FileName!,
                 Message = message
             };
@@ -89,7 +91,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         }
     }
 
-    private async Task<string> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
+    private async Task<(string Content, string ContentType)> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
     {
         if (client.LocalBotServer)
         {
@@ -98,10 +100,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             {
                 if (fs.Length >= 200_000_000)
                     throw new TooLargeException(nameof(fs), fs.Length, 200_000_000);
-                using (var br = new BinaryReader(fs))
-                {
-                    return Convert.ToBase64String(br.ReadBytes((int)fs.Length));
-                }
+                return GetStringFromStream(fs);
             }
         }
         else
@@ -111,13 +110,41 @@ internal class MessageWithDocumentHandler : IHandler<Message>
                 await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
                 if (stream.Length >= 200_000_000)
                     throw new TooLargeException(nameof(stream), stream.Length, 200_000_000);
-                using (var br = new BinaryReader(stream))
-                {
+                
                     stream.Position = 0;
-                    return Convert.ToBase64String(br.ReadBytes((int)stream.Length));
-                }
+                    return GetStringFromStream(stream);
+                
             }
         }
 
+    }
+
+    private (string Content, string ContentType) GetStringFromStream(Stream stream)
+    {
+        using (var br = new BinaryReader(stream))
+        {
+            return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
+        }
+        //using (var detector = new FileTypeDetector(stream))
+        //{
+        //    if (detector.IsBinary())
+        //    {
+        //        using (var br = new BinaryReader(stream))
+        //        {
+        //            return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var encoding = Encoding.GetEncoding("windows-1251");
+        //        if (detector.IsUtf8Encoded())
+        //            encoding = Encoding.UTF8;
+
+        //        using (var sr = new StreamReader(stream, encoding))
+        //        {
+        //            return (sr.ReadToEnd(), "text");
+        //        }
+        //    }
+        //}
     }
 }
