@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Bot.Integration.Git\Bot.Integration.Git.csproj" />
     <ProjectReference Include="..\Bot.Core\Bot.Core.csproj" />
+    <ProjectReference Include="..\Bot.Integration.Git\Bot.Integration.Git.csproj" />
   </ItemGroup>
 
 </Project>

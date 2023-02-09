@@ -1,4 +1,5 @@
 ﻿
+using Bot.Core.Entities;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 using System.Runtime.CompilerServices;
@@ -24,7 +25,7 @@ internal class GitRepository
         };
     }
 
-    public void Commit(string message)
+    public void Commit(string message, CommitInfo info, Stream stream) //TODO: stream into commitInfo
     {
         var signature = new Signature
             (
@@ -32,7 +33,10 @@ internal class GitRepository
             DateTimeOffset.UtcNow
             );
         using var repository = new Repository(_options.LocalPath);
-                
+        using var fileStream = new FileStream(_options.LocalPath+"/"+info.FileName, FileMode.OpenOrCreate, FileAccess.Write);
+        using var writer = new BinaryWriter(fileStream);
+        using var reader = new BinaryReader(stream);
+        writer.Write(reader.ReadBytes((int)stream.Length));
         Commands.Stage(repository,"*"); //TODO: concrete file status
         var commit = repository.Commit(message, signature, signature);
        
