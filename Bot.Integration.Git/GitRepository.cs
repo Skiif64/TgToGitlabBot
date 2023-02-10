@@ -2,6 +2,7 @@
 using Bot.Core.Entities;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Test.CMD")]
@@ -11,12 +12,14 @@ internal class GitRepository : IGitlabService
 {
     private readonly GitOptions _options;
     private readonly Identity _identity;
+    private readonly ILogger<GitRepository>? _logger;
     private CredentialsHandler _credentialsHandler;
     private readonly object _lock = new object();
-    public GitRepository(GitOptions options)
+    public GitRepository(GitOptions options, ILogger<GitRepository>? logger = null)
     {
         _options = options;
         _identity = new Identity(_options.Username, _options.Email);
+        _logger = logger;
 
         _credentialsHandler = (url, user, type) => new UsernamePasswordCredentials
         {
@@ -61,6 +64,7 @@ internal class GitRepository : IGitlabService
             }
             catch (LibGit2SharpException exception)
             {
+                _logger?.LogError($"Exception occured while commiting file: {exception.Message}");
                 return false;
             }
             return true;
