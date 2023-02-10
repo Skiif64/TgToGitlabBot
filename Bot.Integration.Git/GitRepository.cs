@@ -99,6 +99,8 @@ internal class GitRepository : IGitlabService
             Username = optionsSection.Username,
             Password = optionsSection.AccessToken
         };
+        if (!Directory.Exists(optionsSection.LocalPath))
+            Directory.CreateDirectory(optionsSection.LocalPath);
         Repository.Clone(optionsSection.Url, optionsSection.LocalPath, new CloneOptions
         {
             BranchName = optionsSection.Branch,

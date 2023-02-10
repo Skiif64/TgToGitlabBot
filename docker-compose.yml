@@ -12,8 +12,7 @@ services:
         - ./conf:/app/conf 
         - telegram-bot-api-data:/var/lib/telegram-bot-api
         - telegram-bot-git-data:/app/repository
-    
-        
+            
 
   telegram-local-api:
     image: aiogram/telegram-bot-api
