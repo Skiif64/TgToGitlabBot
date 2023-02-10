@@ -8,6 +8,7 @@ public static class DependencyInjection
     public static IServiceCollection AddGit(this IServiceCollection services)
     {
         services.AddTransient<IGitlabService, GitRepository>();
+        services.AddTransient<IConfigurationChecker, GitConfigurationChecker>();
         return services;
     }
 }
