@@ -3,7 +3,6 @@ using Bot.Core.Entities;
 using Bot.Integration.Gitlab.Abstractions;
 using Bot.Integration.Gitlab.Exceptions;
 using Bot.Integration.Gitlab.Primitives;
-using Bot.Integration.Gitlab.Primitives.Base;
 using Bot.Integration.Gitlab.Requests;
 using Bot.Integration.Gitlab.Responses;
 using Microsoft.Extensions.Logging;
@@ -32,7 +31,7 @@ public class GitlabService : IGitlabService
 
     public async Task<bool> CommitFileAndPushAsync(CommitInfo file, CancellationToken cancellationToken = default)
     {
-        if(!_options.ChatOptions.TryGetValue(file.FromChatId.ToString(), out var chatOptions))
+        if (!_options.ChatOptions.TryGetValue(file.FromChatId.ToString(), out var chatOptions))
         {
             _logger.LogError($"Configuration for this chat {file.FromChatId} is not set!");
             return false;

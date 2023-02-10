@@ -19,7 +19,7 @@ public class ExceptionParser : IExceptionParser
             HttpStatusCode.Unauthorized => ParseAuthentificationException(json),
             _ => new Exception("WTF?")
         };
-        
+
     }
 
     private Exception ParseValidationException(string json)

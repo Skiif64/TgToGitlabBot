@@ -25,24 +25,24 @@ internal class TelegramBotClientWrapper : ITelegramBotClient, IDisposable
 
     public event AsyncEventHandler<ApiRequestEventArgs>? OnMakingApiRequest
     {
-        add => _telegramClient.OnMakingApiRequest+= value;
-        remove => _telegramClient.OnMakingApiRequest-= value;
+        add => _telegramClient.OnMakingApiRequest += value;
+        remove => _telegramClient.OnMakingApiRequest -= value;
     }
     public event AsyncEventHandler<ApiResponseEventArgs>? OnApiResponseReceived
     {
-        add => _telegramClient.OnApiResponseReceived+= value;
-        remove => _telegramClient.OnApiResponseReceived-= value;
+        add => _telegramClient.OnApiResponseReceived += value;
+        remove => _telegramClient.OnApiResponseReceived -= value;
     }
 
     public TelegramBotClientWrapper(TelegramBotClientOptions options)
     {
         _httpClient = new HttpClient();
-        _telegramClient = new TelegramBotClient(options, _httpClient);        
+        _telegramClient = new TelegramBotClient(options, _httpClient);
     }
 
     public void Dispose()
     {
-        if(_disposed ) return;
+        if (_disposed) return;
         _httpClient.Dispose();
         _disposed = true;
     }

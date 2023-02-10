@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using Bot.Integration.Gitlab;
+﻿using Bot.Integration.Gitlab;
 using Bot.Integration.Telegram;
-using dotenv.net;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateDefaultBuilder(args);
 

@@ -11,8 +11,8 @@ internal class StreamToStringJsonConverter : JsonConverter<Stream>
     }
 
     public override void Write(Utf8JsonWriter writer, Stream value, JsonSerializerOptions options)
-    {        
+    {
         using var sr = new StreamReader(value);
-        writer.WriteStringValue(sr.ReadToEnd());        
+        writer.WriteStringValue(sr.ReadToEnd());
     }
 }

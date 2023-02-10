@@ -4,15 +4,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
-using Telegram.Bot.Polling;
-using Telegram.Bot.Types.Enums;
 
 namespace Bot.Integration.Telegram;
 
 internal class TelegramBot : ITelegramBot, IHostedService
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<ITelegramBot> _logger;    
+    private readonly ILogger<ITelegramBot> _logger;
     private readonly TelegramBotOptions _options;
     public TelegramBot(
        ILogger<ITelegramBot> logger,
@@ -25,7 +23,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
-    {       
+    {
         if (_options.UseWebhook)
             return StartWebhookAsync(cancellationToken);
         else
@@ -56,7 +54,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         var client = _serviceProvider.GetRequiredService<ITelegramBotClient>();
-        if(_options.UseWebhook)
+        if (_options.UseWebhook)
             await client.DeleteWebhookAsync(cancellationToken: cancellationToken);
         //TODO: Do a normal stopping
     }

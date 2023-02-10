@@ -29,6 +29,6 @@ internal abstract class CommitRequest : RequestBase<CommitResponse>
         Branch = options.BranchName;
         AuthorEmail = options.AuthorEmail;
         AuthorName = options.AuthorUsername;
-        Url = string.Format(Url, options.Project.Replace("/", "%2F"));        
+        Url = string.Format(Url, options.Project.Replace("/", "%2F"));
     }
 }

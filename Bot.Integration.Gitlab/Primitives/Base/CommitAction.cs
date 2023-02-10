@@ -4,7 +4,7 @@ namespace Bot.Integration.Gitlab.Primitives.Base;
 
 internal abstract class CommitAction
 {
-    [JsonPropertyName("action")]        
+    [JsonPropertyName("action")]
     public abstract ActionType Action { get; }
     [JsonPropertyName("file_path")]
     public string FilePath { get; init; } = string.Empty;
@@ -19,7 +19,7 @@ internal abstract class CommitAction
             throw new ArgumentNullException(nameof(filepath));
         FilePath = filepath;
         Content = content;
-        if(encoding is not null)
+        if (encoding is not null)
             Encoding = encoding;
     }
 

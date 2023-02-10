@@ -2,10 +2,10 @@ using Bot.Integration.Git;
 using Bot.Integration.Telegram;
 using Microsoft.Extensions.Options;
 
-var builder = WebApplication.CreateBuilder(args);    
+var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("conf/appsettings.json", false, true)    
+    .AddJsonFile("conf/appsettings.json", false, true)
     .AddEnvironmentVariables();
 
 builder.Services.AddControllers().AddNewtonsoftJson();

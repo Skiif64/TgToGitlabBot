@@ -11,7 +11,7 @@ namespace Bot.Integration.Git;
 
 internal class GitRepository : IGitlabService
 {
-    private readonly GitOptions _options;    
+    private readonly GitOptions _options;
     private readonly ILogger<GitRepository>? _logger;
     private readonly object _lock = new object();
     private CredentialsHandler _credentialsHandler;
@@ -19,8 +19,10 @@ internal class GitRepository : IGitlabService
     private bool _initialized;
     public GitRepository(GitOptions options, ILogger<GitRepository>? logger = null)
     {
-        _options = options;                
-        _logger = logger;              
+        _options = options;
+        _logger = logger;
+        _identity = new Identity(_options.Username, _options.Email);
+
     }
 
     public GitRepository(IOptionsSnapshot<GitOptions> options, ILogger<GitRepository>? logger = null)
@@ -38,18 +40,18 @@ internal class GitRepository : IGitlabService
 
     public bool CommitFileAndPush(CommitInfo info)
     {
-        if(!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
-        {
-            _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
-            return false;
-        }
-        if (!_initialized)
-            Initialize(optionsSection);
         lock (_lock)
         {
+            if (!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
+            {
+                _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
+                return false;
+            }
+            if (!_initialized)
+                Initialize(optionsSection);
+
             try
             {
-
                 var signature = new Signature(_identity, DateTimeOffset.UtcNow);
                 if (info.Content is null)
                     throw new ArgumentNullException(nameof(info.Content));
@@ -71,7 +73,7 @@ internal class GitRepository : IGitlabService
             }
             catch (LibGit2SharpException exception)
             {
-                _logger?.LogError($"Exception occured while commiting file: {exception.Message}");
+                _logger?.LogError($"Exception occured while commiting file: {exception.Message} {exception}");
                 return false;
             }
             return true;
@@ -85,7 +87,7 @@ internal class GitRepository : IGitlabService
 
         repository.Network.Push(remote, $@"refs/heads/{optionsSection.Branch}", new PushOptions
         {
-            CredentialsProvider = _credentialsHandler
+            CredentialsProvider = _credentialsHandler            
         });
     }
 
@@ -93,10 +95,9 @@ internal class GitRepository : IGitlabService
     {
         if (Repository.IsValid(optionsSection.LocalPath) || _initialized)
             return;
-        _identity = new Identity(optionsSection.Username, optionsSection.Email);
         _credentialsHandler = (url, user, type) => new UsernamePasswordCredentials
         {
-            Username = optionsSection.Username,
+            Username = _options.Username,
             Password = optionsSection.AccessToken
         };
         if (!Directory.Exists(optionsSection.LocalPath))
