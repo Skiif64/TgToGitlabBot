@@ -12,8 +12,7 @@ namespace Bot.Integration.Git;
 internal class GitRepository : IGitlabService
 {
     private readonly GitOptions _options;
-    private readonly ILogger<GitRepository>? _logger;
-    private readonly object _lock = new object();
+    private readonly ILogger<GitRepository>? _logger;    
     private CredentialsHandler _credentialsHandler;
     private Identity _identity;
     private bool _initialized;
@@ -40,44 +39,41 @@ internal class GitRepository : IGitlabService
 
     public bool CommitFileAndPush(CommitInfo info)
     {
-        lock (_lock)
+        if (!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
         {
-            if (!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
-            {
-                _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
-                return false;
-            }
-            if (!_initialized)
-                Initialize(optionsSection);
-
-            try
-            {
-                var signature = new Signature(_identity, DateTimeOffset.UtcNow);
-                if (info.Content is null)
-                    throw new ArgumentNullException(nameof(info.Content));
-                string filepath;
-                if (optionsSection.FilePath is not null)
-                    filepath = Path.Combine(optionsSection.FilePath, info.FileName);
-                else
-                    filepath = info.FileName;
-                using var repository = new Repository(optionsSection.LocalPath);
-                using (var fileStream = new FileStream(Path.Combine(optionsSection.LocalPath, filepath), FileMode.OpenOrCreate, FileAccess.Write))
-                {
-                    using var writer = new BinaryWriter(fileStream);
-                    using var reader = new BinaryReader(info.Content);
-                    writer.Write(reader.ReadBytes((int)info.Content.Length));
-                }
-                Commands.Stage(repository, filepath);
-                var commit = repository.Commit(info.Message, signature, signature);
-                Push(optionsSection);
-            }
-            catch (LibGit2SharpException exception)
-            {
-                _logger?.LogError($"Exception occured while commiting file: {exception.Message} {exception}");
-                return false;
-            }
-            return true;
+            _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
+            return false;
         }
+        if (!_initialized)
+            Initialize(optionsSection);
+
+        try
+        {
+            var signature = new Signature(_identity, DateTimeOffset.UtcNow);
+            if (info.Content is null)
+                throw new ArgumentNullException(nameof(info.Content));
+            string filepath;
+            if (optionsSection.FilePath is not null)
+                filepath = Path.Combine(optionsSection.FilePath, info.FileName);
+            else
+                filepath = info.FileName;
+            using var repository = new Repository(optionsSection.LocalPath);
+            using (var fileStream = new FileStream(Path.Combine(optionsSection.LocalPath, filepath), FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                using var writer = new BinaryWriter(fileStream);
+                using var reader = new BinaryReader(info.Content);
+                writer.Write(reader.ReadBytes((int)info.Content.Length));
+            }
+            Commands.Stage(repository, filepath);
+            var commit = repository.Commit(info.Message, signature, signature);
+            Push(optionsSection);
+        }
+        catch (LibGit2SharpException exception)
+        {
+            _logger?.LogError($"Exception occured while commiting file: {exception.Message} {exception}");
+            return false;
+        }
+        return true;
     }
 
     private void Push(GitOptionsSection optionsSection)
@@ -87,7 +83,7 @@ internal class GitRepository : IGitlabService
 
         repository.Network.Push(remote, $@"refs/heads/{optionsSection.Branch}", new PushOptions
         {
-            CredentialsProvider = _credentialsHandler            
+            CredentialsProvider = _credentialsHandler
         });
     }
 
