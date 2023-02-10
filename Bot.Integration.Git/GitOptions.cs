@@ -1,6 +1,12 @@
 ﻿namespace Bot.Integration.Git;
 
-internal class GitOptions
+public class GitOptions
+{
+    public const string Path = "GitOptions";
+    public Dictionary<string, GitOptionsSection> ChatOptions { get; init; } = new();
+}
+
+public class GitOptionsSection
 {
     public string Username { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;

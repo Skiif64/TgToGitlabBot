@@ -3,6 +3,7 @@ using Bot.Core.Entities;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Test.CMD")]
@@ -15,6 +16,7 @@ internal class GitRepository : IGitlabService
     private readonly ILogger<GitRepository>? _logger;
     private CredentialsHandler _credentialsHandler;
     private readonly object _lock = new object();
+    private bool _initialized;
     public GitRepository(GitOptions options, ILogger<GitRepository>? logger = null)
     {
         _options = options;
@@ -25,8 +27,13 @@ internal class GitRepository : IGitlabService
         {
             Username = _options.Username,
             Password = _options.AccessToken
-        };
-        Initialize();
+        };        
+    }
+
+    public GitRepository(IOptionsSnapshot<GitOptions> options, ILogger<GitRepository>? logger = null)
+        : this(options.Value, logger)
+    {
+
     }
 
     public async Task<bool> CommitFileAndPushAsync(CommitInfo file, CancellationToken cancellationToken = default)
@@ -38,6 +45,13 @@ internal class GitRepository : IGitlabService
 
     public bool CommitFileAndPush(CommitInfo info)
     {
+        if(!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
+        {
+            _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
+            return false;
+        }
+        if (!_initialized)
+            Initialize(optionsSection);
         lock (_lock)
         {
             try
@@ -47,12 +61,12 @@ internal class GitRepository : IGitlabService
                 if (info.Content is null)
                     throw new ArgumentNullException(nameof(info.Content));
                 string filepath;
-                if (_options.FilePath is not null)
-                    filepath = Path.Combine(_options.FilePath, info.FileName);
+                if (optionsSection.FilePath is not null)
+                    filepath = Path.Combine(optionsSection.FilePath, info.FileName);
                 else
                     filepath = info.FileName;
-                using var repository = new Repository(_options.LocalPath);
-                using (var fileStream = new FileStream(Path.Combine(_options.LocalPath, filepath), FileMode.OpenOrCreate, FileAccess.Write))
+                using var repository = new Repository(optionsSection.LocalPath);
+                using (var fileStream = new FileStream(Path.Combine(optionsSection.LocalPath, filepath), FileMode.OpenOrCreate, FileAccess.Write))
                 {
                     using var writer = new BinaryWriter(fileStream);
                     using var reader = new BinaryReader(info.Content);
@@ -60,7 +74,7 @@ internal class GitRepository : IGitlabService
                 }
                 Commands.Stage(repository, filepath);
                 var commit = repository.Commit(info.Message, signature, signature);
-                Push();
+                Push(optionsSection);
             }
             catch (LibGit2SharpException exception)
             {
@@ -71,26 +85,27 @@ internal class GitRepository : IGitlabService
         }
     }
 
-    public void Push()
+    private void Push(GitOptionsSection optionsSection)
     {
-        using var repository = new Repository(_options.LocalPath);
+        using var repository = new Repository(optionsSection.LocalPath);
         var remote = repository.Network.Remotes["origin"];
 
-        repository.Network.Push(remote, $@"refs/heads/{_options.Branch}", new PushOptions
+        repository.Network.Push(remote, $@"refs/heads/{optionsSection.Branch}", new PushOptions
         {
             CredentialsProvider = _credentialsHandler
         });
     }
 
-    public void Initialize()
+    private void Initialize(GitOptionsSection optionsSection)
     {
-        if (Repository.IsValid(_options.LocalPath))
+        if (Repository.IsValid(optionsSection.LocalPath) || _initialized)
             return;
 
-        Repository.Clone(_options.Url, _options.LocalPath, new CloneOptions
+        Repository.Clone(optionsSection.Url, optionsSection.LocalPath, new CloneOptions
         {
-            BranchName = _options.Branch,
+            BranchName = optionsSection.Branch,
             CredentialsProvider = _credentialsHandler
         });
+        _initialized = true;
     }
 }
