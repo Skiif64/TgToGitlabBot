@@ -11,23 +11,16 @@ namespace Bot.Integration.Git;
 
 internal class GitRepository : IGitlabService
 {
-    private readonly GitOptions _options;
-    private readonly Identity _identity;
+    private readonly GitOptions _options;    
     private readonly ILogger<GitRepository>? _logger;
-    private CredentialsHandler _credentialsHandler;
     private readonly object _lock = new object();
+    private CredentialsHandler _credentialsHandler;
+    private Identity _identity;
     private bool _initialized;
     public GitRepository(GitOptions options, ILogger<GitRepository>? logger = null)
     {
-        _options = options;
-        _identity = new Identity(_options.Username, _options.Email);
-        _logger = logger;
-
-        _credentialsHandler = (url, user, type) => new UsernamePasswordCredentials
-        {
-            Username = _options.Username,
-            Password = _options.AccessToken
-        };        
+        _options = options;                
+        _logger = logger;              
     }
 
     public GitRepository(IOptionsSnapshot<GitOptions> options, ILogger<GitRepository>? logger = null)
@@ -100,7 +93,12 @@ internal class GitRepository : IGitlabService
     {
         if (Repository.IsValid(optionsSection.LocalPath) || _initialized)
             return;
-
+        _identity = new Identity(optionsSection.Username, optionsSection.Email);
+        _credentialsHandler = (url, user, type) => new UsernamePasswordCredentials
+        {
+            Username = optionsSection.Username,
+            Password = optionsSection.AccessToken
+        };
         Repository.Clone(optionsSection.Url, optionsSection.LocalPath, new CloneOptions
         {
             BranchName = optionsSection.Branch,
