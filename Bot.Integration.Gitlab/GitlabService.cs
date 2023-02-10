@@ -30,7 +30,7 @@ public class GitlabService : IGitlabService
 
     }
 
-    public async Task<bool> CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
+    public async Task<bool> CommitFileAndPushAsync(CommitInfo file, CancellationToken cancellationToken = default)
     {
         if(!_options.ChatOptions.TryGetValue(file.FromChatId.ToString(), out var chatOptions))
         {

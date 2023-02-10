@@ -54,12 +54,12 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             {
                 From = from,
                 FromChatId = data.Chat.Id,
-                Content = content.Content,
+                //Content = content.Content, TODO: fix this
                 ContentType = content.ContentType,
                 FileName = document.FileName!,
                 Message = message
             };
-            var result = await _gitlabService.CommitFileAsync(commitInfo, cancellationToken);
+            var result = await _gitlabService.CommitFileAndPushAsync(commitInfo, cancellationToken);
             if (result)
             {
                 await client.SendTextMessageAsync(
