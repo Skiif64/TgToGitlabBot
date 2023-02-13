@@ -29,7 +29,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
     {
         var document = data.Document!;
-        var content = await DownloadFileAsync(client, document, cancellationToken);
+        using var content = await DownloadFileAsync(client, document, cancellationToken);
         string message;
         string? from;
         if (data.Chat.Type is ChatType.Channel)
