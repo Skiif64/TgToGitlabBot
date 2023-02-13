@@ -1,5 +1,6 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
+using Bot.Integration.Git.GitCommands;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ internal class GitRepository : IGitlabService
 {
     private readonly GitOptions _options;
     private readonly ILogger<GitRepository>? _logger;    
-    private CredentialsHandler _credentialsHandler;
+    private CredentialsHandler _credentialsHandler = null!;
     private Identity _identity;
     private bool _initialized;
     public GitRepository(GitOptions options, ILogger<GitRepository>? logger = null)
@@ -43,33 +44,32 @@ internal class GitRepository : IGitlabService
         {
             _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
             return false;
-        }
-        if (!_initialized)
-            Initialize(optionsSection);
+        }        
 
         try
         {
-            var signature = new Signature(_identity, DateTimeOffset.UtcNow);
-            if (info.Content is null)
-                throw new ArgumentNullException(nameof(info.Content));
+            using var repository = new Repository(optionsSection.LocalPath);
+            if (!_initialized)
+                _initialized = new InitializeCommand(optionsSection, _credentialsHandler)
+                    .Execute(repository);
+
+            var signature = new Signature(_identity, DateTimeOffset.UtcNow);           
             string filepath;
             if (optionsSection.FilePath is not null)
                 filepath = Path.Combine(optionsSection.FilePath, info.FileName);
             else
                 filepath = info.FileName;
-            using var repository = new Repository(optionsSection.LocalPath);
-            using (var fileStream = new FileStream(Path.Combine(optionsSection.LocalPath, filepath), FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                using var writer = new BinaryWriter(fileStream);
-                using var reader = new BinaryReader(info.Content);
-                writer.Write(reader.ReadBytes((int)info.Content.Length));
-            }
-            Commands.Stage(repository, filepath);
-            var commit = repository.Commit(info.Message, signature, signature);
-            Push(optionsSection);
+
+            new AddFileCommand(info, optionsSection, _identity, signature)
+                .Execute(repository);
+            new StageAndCommitCommand(filepath, info.Message, signature)
+                .Execute(repository);
+            new PushCommand(optionsSection, _credentialsHandler)
+                .Execute(repository);
         }
         catch (LibGit2SharpException exception)
         {
+            Console.WriteLine(exception);
             _logger?.LogError($"Exception occured while commiting file: {exception.Message} {exception}");
             return false;
         }
@@ -87,22 +87,5 @@ internal class GitRepository : IGitlabService
         });
     }
 
-    private void Initialize(GitOptionsSection optionsSection)
-    {
-        if (Repository.IsValid(optionsSection.LocalPath) || _initialized)
-            return;
-        _credentialsHandler = (url, user, type) => new UsernamePasswordCredentials
-        {
-            Username = _options.Username,
-            Password = optionsSection.AccessToken
-        };
-        if (!Directory.Exists(optionsSection.LocalPath))
-            Directory.CreateDirectory(optionsSection.LocalPath);
-        Repository.Clone(optionsSection.Url, optionsSection.LocalPath, new CloneOptions
-        {
-            BranchName = optionsSection.Branch,
-            CredentialsProvider = _credentialsHandler
-        });
-        _initialized = true;
-    }
+    
 }
