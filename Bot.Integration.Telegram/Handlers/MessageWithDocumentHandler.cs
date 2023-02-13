@@ -113,19 +113,14 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             var fileInfo = await client.GetFileAsync(document.FileId, cancellationToken);
             var fs = new FileStream(fileInfo.FilePath, FileMode.Open);
             return fs;
-
         }
         else
         {
             await using (var stream = new MemoryStream())
             {
-                await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);
-                if (stream.Length >= 200_000_000)
-                    throw new TooLargeException(nameof(stream), stream.Length, 200_000_000);
-
+                await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);                
                 stream.Position = 0;
                 return stream;
-
             }
         }
 
