@@ -1,9 +1,10 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
+using Bot.Core.Exceptions;
+using Bot.Core.ResultObject;
 using Bot.Integration.Gitlab.Abstractions;
 using Bot.Integration.Gitlab.Exceptions;
 using Bot.Integration.Gitlab.Primitives;
-using Bot.Integration.Gitlab.Primitives.Base;
 using Bot.Integration.Gitlab.Requests;
 using Bot.Integration.Gitlab.Responses;
 using Microsoft.Extensions.Logging;
@@ -30,12 +31,12 @@ public class GitlabService : IGitlabService
 
     }
 
-    public async Task<bool> CommitFileAsync(CommitInfo file, CancellationToken cancellationToken = default)
+    public async Task<Result<bool>> CommitFileAndPushAsync(CommitInfo file, CancellationToken cancellationToken = default)
     {
-        if(!_options.ChatOptions.TryGetValue(file.FromChatId.ToString(), out var chatOptions))
+        if (!_options.ChatOptions.TryGetValue(file.FromChatId.ToString(), out var chatOptions))
         {
             _logger.LogError($"Configuration for this chat {file.FromChatId} is not set!");
-            return false;
+            return new ErrorResult<bool>(new ConfigurationNotSetException(file.FromChatId));
         }
 
         try
@@ -46,14 +47,15 @@ public class GitlabService : IGitlabService
                 await CreateNewFile(file, cancellationToken, chatOptions);
 
             _logger.LogInformation($"Commited {file.FileName} from {file.From} to project {chatOptions.Project}, branch {chatOptions.BranchName}");
-            return true;
+            return new SuccessResult<bool>(true);
         }
         catch (ValidationException exception)
         {
             _logger.LogError($"Error during commiting file: {exception.Message}");
+            return new ErrorResult<bool>(exception);
         }
 
-        return false;
+        
     }
 
     private async Task<bool> FileExists(CommitInfo file, CancellationToken cancellationToken, GitlabChatOptions options)

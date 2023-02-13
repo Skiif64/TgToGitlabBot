@@ -23,22 +23,22 @@ internal class FileTypeDetector : IDisposable
     {
         _stream = stream;
         _reader = new StreamReader(stream);
-    }    
+    }
 
     public bool IsBinary()
     {
         if (_disposed) throw new ObjectDisposedException(nameof(FileTypeDetector));
         var streamPosition = _stream.Position;
-        
+
         int ch;
         while ((ch = _reader.Read()) != -1)
         {
             if (IsControlChar(ch))
-            {                
+            {
                 _stream.Position = streamPosition;
                 return true;
             }
-        }        
+        }
         _stream.Position = streamPosition;
         return false;
     }
@@ -46,7 +46,7 @@ internal class FileTypeDetector : IDisposable
     public bool IsUtf8Encoded()
     {
         if (_disposed) throw new ObjectDisposedException(nameof(FileTypeDetector));
-        var streamPosition = _stream.Position;        
+        var streamPosition = _stream.Position;
 
         int ch;
         while ((ch = _reader.Read()) != -1)
@@ -54,13 +54,13 @@ internal class FileTypeDetector : IDisposable
             foreach (var utfChar in __utfChars)
             {
                 if (ch == utfChar)
-                {                   
+                {
                     _stream.Position = streamPosition;
                     return true;
                 }
             }
         }
-        
+
         _stream.Position = streamPosition;
         return false;
     }

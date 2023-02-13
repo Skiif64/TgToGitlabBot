@@ -1,6 +1,5 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Integration.Telegram.Handlers.Base;
-using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -26,7 +25,7 @@ internal class StatusCommandHandler : IHandler<Message>
     public async Task HandleAsync(Message data, ITelegramBotClient client, CancellationToken cancellationToken)
     {
         var chatId = data.Chat.Id;
-        
+
         if (_configurationChecker.Exists(chatId))
         {
             await client.SendTextMessageAsync(

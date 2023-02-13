@@ -367,3 +367,4 @@ FodyWeavers.xsd
 /conf/appsettings.json
 /conf/appsettings_prod.json
 /conf/appsettings_test.json
+/Test.CMD/Program.cs

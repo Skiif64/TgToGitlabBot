@@ -1,6 +1,5 @@
 ﻿using Bot.Core.Exceptions;
 using Bot.Integration.Gitlab.Exceptions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -49,7 +48,7 @@ namespace Bot.App.Controllers
                 _logger.LogError($"Authentification exception occured: {exception.Message}.");
                 return Unauthorized(exception.Message);
             }
-            catch(TooLargeException exception)
+            catch (TooLargeException exception)
             {
                 _logger.LogError($"Too large file recieved: {exception.Message}");
                 return Accepted();

@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Json;
-
-namespace Bot.Integration.Gitlab.Requests.Base;
+﻿namespace Bot.Integration.Gitlab.Requests.Base;
 
 internal abstract class RequestBase<TResponse> : IGitlabRequest<TResponse>
 {
@@ -10,7 +8,7 @@ internal abstract class RequestBase<TResponse> : IGitlabRequest<TResponse>
     public Dictionary<string, string?> Headers { get; } = new();
 
     public RequestBase(GitlabChatOptions options)
-    {        
+    {
         AccessToken = options.AccessToken;
         if (AccessToken is not null)
             Headers.Add("PRIVATE-TOKEN", AccessToken);

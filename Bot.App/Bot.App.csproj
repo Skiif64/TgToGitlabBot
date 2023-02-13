@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.306" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.13" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
   </ItemGroup>
@@ -25,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Bot.Core\Bot.Core.csproj" />
     <ProjectReference Include="..\Bot.Integration.Gitlab\Bot.Integration.Gitlab.csproj" />
+    <ProjectReference Include="..\Bot.Integration.Git\Bot.Integration.Git.csproj" />
     <ProjectReference Include="..\Bot.Integration.Telegram\Bot.Integration.Telegram.csproj" />
   </ItemGroup>
 
