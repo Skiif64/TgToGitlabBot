@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using Bot.Core.ResultObject;
+using LibGit2Sharp;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Bot.Git.Tests")]

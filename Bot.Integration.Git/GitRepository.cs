@@ -1,5 +1,7 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
+using Bot.Core.Exceptions;
+using Bot.Core.ResultObject;
 using Bot.Integration.Git.GitCommands;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -31,19 +33,19 @@ internal class GitRepository : IGitlabService
 
     }
 
-    public async Task<bool> CommitFileAndPushAsync(CommitInfo file, CancellationToken cancellationToken = default)
+    public async Task<Result<bool>> CommitFileAndPushAsync(CommitInfo file, CancellationToken cancellationToken = default)
     {
         return await Task
             .Factory
             .StartNew(() => CommitFileAndPush(file), cancellationToken);
     }
 
-    public bool CommitFileAndPush(CommitInfo info)
+    public Result<bool> CommitFileAndPush(CommitInfo info)
     {
         if (!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
         {
             _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
-            return false;
+            return new ErrorResult<bool>(new ConfigurationNotSetException(info.FromChatId));
         }        
 
         try
@@ -78,9 +80,9 @@ internal class GitRepository : IGitlabService
         {
             Console.WriteLine(exception);
             _logger?.LogError($"Exception occured while commiting file: {exception}");
-            return false;
+            return new ErrorResult<bool>(exception);
         }
         _logger?.LogInformation($"Succesufully commited and push file {info.FileName}to project {optionsSection.Url}, branch {optionsSection.Branch}");
-        return true;
+        return new SuccessResult<bool>(true);
     }    
 }

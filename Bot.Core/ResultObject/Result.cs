@@ -15,8 +15,7 @@ public abstract class Result<T> : Result
     protected Result(T data)
     {
         Value = data;
-    }   
-    
+    }
 }
 
 public class SuccessResult : Result

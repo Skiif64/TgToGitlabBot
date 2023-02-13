@@ -1,6 +1,5 @@
 ﻿using Bot.Core.Entities;
 using LibGit2Sharp;
-using System.Security.Principal;
 
 namespace Bot.Integration.Git.GitCommands;
 
