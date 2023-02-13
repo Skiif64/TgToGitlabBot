@@ -1,6 +1,7 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
 using Bot.Core.Exceptions;
+using Bot.Core.ResultObject;
 using Bot.Integration.Telegram.Handlers.Base;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -57,7 +58,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             Message = message
         };
         var result = await _gitlabService.CommitFileAndPushAsync(commitInfo, cancellationToken);
-        if (result)
+        if (result.Success)
         {
             await client.SendTextMessageAsync(
                 chatId: data.Chat.Id,
@@ -68,12 +69,26 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         }
         else
         {
-            await client.SendTextMessageAsync(
-               chatId: data.Chat.Id,
-               text: $"Произошла ошибка при передаче файла {commitInfo.FileName}",
-               replyToMessageId: data.MessageId,
-               cancellationToken: cancellationToken
-                );
+            if (result is ErrorResult<bool> error)
+            {
+                var handler = error.Exception switch
+                {
+                    ConfigurationNotSetException => client.SendTextMessageAsync(
+                     chatId: data.Chat.Id,
+                    text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
+                    $"\nДля данного чата ({data.Chat.Id}) не задана конфигурация.",
+                    replyToMessageId: data.MessageId,
+                    cancellationToken: cancellationToken
+                        ),
+                    _ => client.SendTextMessageAsync(
+                         chatId: data.Chat.Id,
+                        text: $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
+                        replyToMessageId: data.MessageId,
+                        cancellationToken: cancellationToken
+                            )
+                };
+                await handler;
+            }
         }
     }
 
