@@ -80,9 +80,18 @@ internal class GitRepository : IGitlabService
         {
             Console.WriteLine(exception);
             _logger?.LogError($"Exception occured while commiting file: {exception}");
-            return new ErrorResult<bool>(exception);
+            return new ErrorResult<bool>(HandleLibGitException(exception));
         }
         _logger?.LogInformation($"Succesufully commited and push file {info.FileName}to project {optionsSection.Url}, branch {optionsSection.Branch}");
         return new SuccessResult<bool>(true);
-    }    
+    }
+
+    private Exception HandleLibGitException(LibGit2SharpException exception)
+    {
+        return exception switch
+        {
+            EmptyCommitException => new GitException("Пустой коммит, возможно в файле отсутствуют какае-либо изменения"),
+            _ => new GitException("Ошибка Git")
+        };
+    }
 }

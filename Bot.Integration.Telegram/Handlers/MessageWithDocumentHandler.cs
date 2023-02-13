@@ -80,6 +80,13 @@ internal class MessageWithDocumentHandler : IHandler<Message>
                     replyToMessageId: data.MessageId,
                     cancellationToken: cancellationToken
                         ),
+                        GitException ex => client.SendTextMessageAsync(
+                     chatId: data.Chat.Id,
+                    text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
+                    $"\nОшибка Git: ({ex.Message})",
+                    replyToMessageId: data.MessageId,
+                    cancellationToken: cancellationToken
+                    ),
                     _ => client.SendTextMessageAsync(
                          chatId: data.Chat.Id,
                         text: $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
