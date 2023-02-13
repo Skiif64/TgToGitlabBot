@@ -48,10 +48,17 @@ internal class GitRepository : IGitlabService
 
         try
         {
-            using var repository = new Repository(optionsSection.LocalPath);
             if (!_initialized)
+            {
+                _credentialsHandler = (url, user, type) => new UsernamePasswordCredentials
+                {
+                    Username = _options.Username,
+                    Password = optionsSection.AccessToken
+                };
                 _initialized = new InitializeCommand(optionsSection, _credentialsHandler)
-                    .Execute(repository);
+                    .Execute(null!);
+            }
+            using var repository = new Repository(optionsSection.LocalPath);
 
             var signature = new Signature(_identity, DateTimeOffset.UtcNow);           
             string filepath;
@@ -73,6 +80,7 @@ internal class GitRepository : IGitlabService
             _logger?.LogError($"Exception occured while commiting file: {exception}");
             return false;
         }
+        _logger?.LogInformation($"Succesufully commited and push file {info.FileName}to project {optionsSection.Url}, branch {optionsSection.Branch}");
         return true;
     }    
 }
