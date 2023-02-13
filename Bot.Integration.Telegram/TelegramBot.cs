@@ -48,7 +48,8 @@ internal class TelegramBot : ITelegramBot, IHostedService
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Deleting webhook");
         var client = _serviceProvider.GetRequiredService<ITelegramBotClient>();
-        await client.DeleteWebhookAsync(cancellationToken: cancellationToken);        
+        await client.DeleteWebhookAsync(cancellationToken: cancellationToken);
     }
 }
