@@ -21,7 +21,9 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.App", "Bot.App\Bot.App.csproj", "{C9CA48FD-1469-481B-A105-475FF1A302AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Integration.Git", "Bot.Integration.Git\Bot.Integration.Git.csproj", "{0E6BB990-C13E-4EF0-A5EE-528AD4906E8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.Integration.Git", "Bot.Integration.Git\Bot.Integration.Git.csproj", "{0E6BB990-C13E-4EF0-A5EE-528AD4906E8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Git.Tests", "..\Bot.Git.Tests\Bot.Git.Tests.csproj", "{5B6D96EE-8A78-4CEC-A347-F733C2C78687}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,10 @@ Global
 		{0E6BB990-C13E-4EF0-A5EE-528AD4906E8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E6BB990-C13E-4EF0-A5EE-528AD4906E8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E6BB990-C13E-4EF0-A5EE-528AD4906E8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B6D96EE-8A78-4CEC-A347-F733C2C78687}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B6D96EE-8A78-4CEC-A347-F733C2C78687}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B6D96EE-8A78-4CEC-A347-F733C2C78687}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B6D96EE-8A78-4CEC-A347-F733C2C78687}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,6 +79,7 @@ Global
 		{E9DF84AA-FE30-44C5-9C4A-E338ADF8C2FE} = {202B0A89-645B-489A-B646-D75F8C389CF1}
 		{C9CA48FD-1469-481B-A105-475FF1A302AB} = {38275583-2303-4B18-97F8-AB798F64645E}
 		{0E6BB990-C13E-4EF0-A5EE-528AD4906E8E} = {38275583-2303-4B18-97F8-AB798F64645E}
+		{5B6D96EE-8A78-4CEC-A347-F733C2C78687} = {202B0A89-645B-489A-B646-D75F8C389CF1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9D6AF238-152B-4099-880F-99DECBD096FB}

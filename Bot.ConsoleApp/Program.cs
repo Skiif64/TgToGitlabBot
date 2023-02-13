@@ -6,9 +6,7 @@ using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateDefaultBuilder(args);
 
-#if DEBUG
-DotEnv.Load();
-#endif
+
 
 builder.ConfigureAppConfiguration((host, cfg) => cfg
 .AddJsonFile("conf/appsettings.json", false, true)
