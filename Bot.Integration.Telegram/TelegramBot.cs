@@ -24,10 +24,7 @@ internal class TelegramBot : ITelegramBot, IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_options.UseWebhook)
-            return StartWebhookAsync(cancellationToken);
-        else
-            return StartPollingAsync(cancellationToken);
+        return StartWebhookAsync(cancellationToken);
     }
 
     public Task StartPollingAsync(CancellationToken cancellationToken)
@@ -38,8 +35,6 @@ internal class TelegramBot : ITelegramBot, IHostedService
     public async Task StartWebhookAsync(CancellationToken cancellationToken)
     {
         var client = _serviceProvider.GetRequiredService<ITelegramBotClient>();
-        if (!_options.UseWebhook)
-            throw new InvalidOperationException("Cannot set webhook.Bot not in webhook mode");
 
         if (_options.WebhookUrl is null)
             throw new ArgumentException("Webhook is not set");
@@ -54,8 +49,6 @@ internal class TelegramBot : ITelegramBot, IHostedService
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         var client = _serviceProvider.GetRequiredService<ITelegramBotClient>();
-        if (_options.UseWebhook)
-            await client.DeleteWebhookAsync(cancellationToken: cancellationToken);
-        //TODO: Do a normal stopping
+        await client.DeleteWebhookAsync(cancellationToken: cancellationToken);        
     }
 }

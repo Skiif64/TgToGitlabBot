@@ -90,7 +90,7 @@ internal class GitRepository : IGitlabService
     {
         return exception switch
         {
-            EmptyCommitException => new GitException("Пустой коммит, возможно в файле отсутствуют какае-либо изменения"),
+            EmptyCommitException => new GitException("Пустой коммит, возможно в файле отсутствуют какие-либо изменения"),
             _ => new GitException("Ошибка Git")
         };
     }

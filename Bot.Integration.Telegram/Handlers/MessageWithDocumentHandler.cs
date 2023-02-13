@@ -31,16 +31,16 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         var document = data.Document!;
         var content = await DownloadFileAsync(client, document, cancellationToken);
         string message;
-        string from;
+        string? from;
         if (data.Chat.Type is ChatType.Channel)
         {
             from = data.AuthorSignature;
-            message = data.Caption;
+            message = data.Caption ?? string.Empty;
             message += $"\nиз: {data.Chat.Title}";
         }
         else
         {
-            from = data.From.FirstName + " " + data.From.LastName;
+            from = data.From!.FirstName + " " + data.From.LastName;
             message = $"{document.FileName} от {from}";
         }
 
@@ -50,10 +50,9 @@ internal class MessageWithDocumentHandler : IHandler<Message>
 
         var commitInfo = new CommitInfo
         {
-            From = from,
+            From = from ?? "unknown user",
             FromChatId = data.Chat.Id,
-            Content = content.Content,
-            ContentType = content.ContentType,
+            Content = content,
             FileName = document.FileName!,
             Message = message
         };
@@ -71,43 +70,49 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         {
             if (result is ErrorResult<bool> error)
             {
-                var handler = error.Exception switch
-                {
-                    ConfigurationNotSetException => client.SendTextMessageAsync(
-                     chatId: data.Chat.Id,
-                    text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
-                    $"\nДля данного чата ({data.Chat.Id}) не задана конфигурация.",
-                    replyToMessageId: data.MessageId,
-                    cancellationToken: cancellationToken
-                        ),
-                        GitException ex => client.SendTextMessageAsync(
-                     chatId: data.Chat.Id,
-                    text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
-                    $"\nОшибка Git: ({ex.Message})",
-                    replyToMessageId: data.MessageId,
-                    cancellationToken: cancellationToken
-                    ),
-                    _ => client.SendTextMessageAsync(
-                         chatId: data.Chat.Id,
-                        text: $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
-                        replyToMessageId: data.MessageId,
-                        cancellationToken: cancellationToken
-                            )
-                };
-                await handler;
+                await HandleErrorAsync(data, client, commitInfo, error, cancellationToken);
+            }
+            else
+            {
+                throw new Exception("Unknown behavior");
             }
         }
     }
 
-    private async Task<(Stream Content, string ContentType)> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
+    private Task HandleErrorAsync(Message data, ITelegramBotClient client, CommitInfo commitInfo, ErrorResult<bool> error, CancellationToken cancellationToken)
+    {
+        return error.Exception switch
+        {
+            ConfigurationNotSetException => client.SendTextMessageAsync(
+             chatId: data.Chat.Id,
+            text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
+            $"\nДля данного чата ({data.Chat.Id}) не задана конфигурация.",
+            replyToMessageId: data.MessageId,
+            cancellationToken: cancellationToken
+                ),
+            GitException ex => client.SendTextMessageAsync(
+         chatId: data.Chat.Id,
+        text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
+        $"\nОшибка Git: {ex.Message}",
+        replyToMessageId: data.MessageId,
+        cancellationToken: cancellationToken
+        ),
+            _ => client.SendTextMessageAsync(
+                 chatId: data.Chat.Id,
+                text: $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
+                replyToMessageId: data.MessageId,
+                cancellationToken: cancellationToken
+                    )
+        };        
+    }
+
+    private async Task<Stream> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
     {
         if (client.LocalBotServer)
         {
             var fileInfo = await client.GetFileAsync(document.FileId, cancellationToken);
             var fs = new FileStream(fileInfo.FilePath, FileMode.Open);
-            if (fs.Length >= 200_000_000)
-                throw new TooLargeException(nameof(fs), fs.Length, 200_000_000);
-            return (fs, "text");
+            return fs;
 
         }
         else
@@ -119,39 +124,10 @@ internal class MessageWithDocumentHandler : IHandler<Message>
                     throw new TooLargeException(nameof(stream), stream.Length, 200_000_000);
 
                 stream.Position = 0;
-                return (stream, "text");
+                return stream;
 
             }
         }
 
-    }
-
-    private (string Content, string ContentType) GetFileStream(Stream stream)
-    {
-        using (var br = new BinaryReader(stream))
-        {
-            return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
-        }
-        //using (var detector = new FileTypeDetector(stream))
-        //{
-        //    if (detector.IsBinary())
-        //    {
-        //        using (var br = new BinaryReader(stream))
-        //        {
-        //            return (Convert.ToBase64String(br.ReadBytes((int)stream.Length)), "base64");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        var encoding = Encoding.GetEncoding("windows-1251");
-        //        if (detector.IsUtf8Encoded())
-        //            encoding = Encoding.UTF8;
-
-        //        using (var sr = new StreamReader(stream, encoding))
-        //        {
-        //            return (sr.ReadToEnd(), "text");
-        //        }
-        //    }
-        //}
     }
 }

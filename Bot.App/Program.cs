@@ -15,9 +15,7 @@ builder.Services.AddTransient<HttpClient>();
 builder.Services.AddGit();
 builder.Services.AddTelegramBot();
 var app = builder.Build();
-var sp = app.Services;
 
-if (sp.GetRequiredService<IOptions<TelegramBotOptions>>().Value.UseWebhook)
-    app.MapControllers();
+app.MapControllers();
 
 await app.RunAsync();
