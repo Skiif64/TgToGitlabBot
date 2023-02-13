@@ -15,7 +15,7 @@ internal class StageAndCommitCommand : IGitCommand
         _signature = signature;
     }
     public bool Execute(IRepository repository)
-    {
+    {        
         Commands.Stage(repository, _filepath);
         var commit = repository.Commit(_commitMessage, _signature, _signature);
         return commit != null;

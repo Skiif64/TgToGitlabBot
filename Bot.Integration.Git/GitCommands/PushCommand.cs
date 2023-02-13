@@ -18,8 +18,7 @@ internal class PushCommand : IGitCommand
     {
         var remote = repository.Network.Remotes["origin"];
         if (remote == null)
-            return false;
-
+            return false;        
         repository.Network.Push(remote, $@"refs/heads/{_optionsSection.Branch}", new PushOptions
         {
             CredentialsProvider = _credentials

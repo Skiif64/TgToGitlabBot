@@ -68,7 +68,8 @@ internal class GitRepository : IGitlabService
                 filepath = Path.Combine(optionsSection.FilePath, info.FileName);
             else
                 filepath = info.FileName;
-
+            new PullChangesCommand(signature, _credentialsHandler)
+                .Execute(repository);
             new AddFileCommand(info, optionsSection)
                 .Execute(repository);
             new StageAndCommitCommand(filepath, info.Message, signature)
@@ -77,13 +78,25 @@ internal class GitRepository : IGitlabService
                 .Execute(repository);
         }
         catch (LibGit2SharpException exception)
-        {
-            Console.WriteLine(exception);
+        {            
             _logger?.LogError($"Exception occured while commiting file: {exception}");
             return new ErrorResult<bool>(HandleLibGitException(exception));
         }
         _logger?.LogInformation($"Succesufully commited and push file {info.FileName}to project {optionsSection.Url}, branch {optionsSection.Branch}");
         return new SuccessResult<bool>(true);
+    }
+    
+    private string CacheFile(string filepath)
+    {
+        var cachedFilepath = filepath + ".cached";
+
+        using var sourceFileStream = File.OpenRead(filepath);
+        using var sourceBinaryReader = new BinaryReader(sourceFileStream);
+        using var destFileStream = File.Create(cachedFilepath);
+        using var destBinaryWriterWriter = new BinaryWriter(destFileStream);
+
+        destBinaryWriterWriter.Write(sourceBinaryReader.ReadBytes((int)sourceFileStream.Length));
+        return cachedFilepath;
     }
 
     private Exception HandleLibGitException(LibGit2SharpException exception)
