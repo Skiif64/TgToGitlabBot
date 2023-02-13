@@ -60,7 +60,7 @@ internal class GitRepository : IGitlabService
             else
                 filepath = info.FileName;
 
-            new AddFileCommand(info, optionsSection, _identity, signature)
+            new AddFileCommand(info, optionsSection)
                 .Execute(repository);
             new StageAndCommitCommand(filepath, info.Message, signature)
                 .Execute(repository);
@@ -70,22 +70,9 @@ internal class GitRepository : IGitlabService
         catch (LibGit2SharpException exception)
         {
             Console.WriteLine(exception);
-            _logger?.LogError($"Exception occured while commiting file: {exception.Message} {exception}");
+            _logger?.LogError($"Exception occured while commiting file: {exception}");
             return false;
         }
         return true;
-    }
-
-    private void Push(GitOptionsSection optionsSection)
-    {
-        using var repository = new Repository(optionsSection.LocalPath);
-        var remote = repository.Network.Remotes["origin"];
-
-        repository.Network.Push(remote, $@"refs/heads/{optionsSection.Branch}", new PushOptions
-        {
-            CredentialsProvider = _credentialsHandler
-        });
-    }
-
-    
+    }    
 }

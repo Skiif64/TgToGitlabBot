@@ -5,18 +5,14 @@ using System.Security.Principal;
 namespace Bot.Integration.Git.GitCommands;
 
 internal class AddFileCommand : IGitCommand
-{
-    private readonly Identity _identity;
+{    
     private readonly CommitInfo _commitInfo;
-    private readonly GitOptionsSection _optionsSection;
-    private readonly Signature _signature;
+    private readonly GitOptionsSection _optionsSection;    
 
-    public AddFileCommand(CommitInfo commitInfo, GitOptionsSection optionsSection, Identity identity, Signature signature)
+    public AddFileCommand(CommitInfo commitInfo, GitOptionsSection optionsSection)
     {
         _commitInfo = commitInfo;
-        _optionsSection = optionsSection;
-        _identity = identity;
-        _signature = signature;
+        _optionsSection = optionsSection;       
     }
     public bool Execute(IRepository repository)
     {       
