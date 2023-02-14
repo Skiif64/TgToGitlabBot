@@ -2,7 +2,8 @@
 
 ## Что умеет данный бот
 
-Данный бот умеет получать сообщение с приклепленным файлом из чата/канала и коммитить его в Gitlab (Возможно в любой другой Git).
+Данный бот умеет получать сообщение с приклепленным файлом из чата/группы/канала и коммитить его в Gitlab (Возможно в любой другой Git).
+Бот умеет работать сразу с несколькими чатами/группами/каналами
 ### Действия, воспринимаемые ботом:
 
 - /status - отображает наличие конфигурации данного чата
@@ -19,7 +20,7 @@
 >
 >TELEGRAM_PROXY={http://{host}:{port}} - необязателен. Требуется только в том случае, если перед Local Telegram Bot Api есть прокси
 >
-Получить Api id и Api hash можно следуя инструкции Telegram: https://core.telegram.org/api/obtaining_api_id
+Получить Api id и Api hash можно следуя инструкции от Telegram: https://core.telegram.org/api/obtaining_api_id
 
 ### Настройка Telegram бота
 
@@ -47,21 +48,20 @@ appsettings.example.json
     "Username": "Bot user username",
     "Email": "Bot user email",
     "ChatOptions": {
-      "chat id": { -- Отдельная настройка репозитория для каждого отдельного чата
+      "00000000001": {
         "Url": "repository url",        
         "AccessToken": "access token or password of bot user account",
         "Branch": "master",
         "LocalPath": "repository/repository1",
         "FilePath": null
       },
-      "chat id 2": { -- Отдельная настройка репозитория для каждого отдельного чата
+      "00000000002": {
         "Url": "repository url",        
         "AccessToken": "access token or password of bot user account",
         "Branch": "master",
-        "LocalPath": "repository/repository1",
+        "LocalPath": "repository/repository2",
         "FilePath": null
-      },
-      --...
+      }
     }
   },  
   "Logging": {
@@ -91,7 +91,7 @@ appsettings.example.json
 >
 >> ChatOptions - секция конфигурации для конкретного чата
 >>
->>> ChatId - id чата для которого применяются данная конфигурация
+>>> ChatId - id чата для которого применяются данная конфигурация. Для получения chatId можно использовать стороннего бота или воспользоваться командой /status у данного бота
 >>>
 >>> Url - url репозитория
 >>>
@@ -99,7 +99,7 @@ appsettings.example.json
 >>>
 >>> Branch - ветка, в которую будут происходить коммиты(ветка должна существовать)
 >>>
->>> LocalPath - относительный путь до директории с репозиторием(в случае отсутствия данной директории она будет создана)
+>>> LocalPath - относительный путь до директории с репозиторием(в случае отсутствия данной директории она будет создана). Важно, чтобы путь до репозитория начинался с **repository**
 >>>
 >>> FilePath - дополнительный путь для файла, необязателен
 
