@@ -51,6 +51,7 @@ internal class GitRepository : IGitlabService
 
         Repository repository = new Repository(optionsSection.LocalPath);
         string filepath = string.Empty;
+        string repositoryFilepath = string.Empty;
         string? cachedFilepath = null;
         try
         {
@@ -64,15 +65,14 @@ internal class GitRepository : IGitlabService
                 _initialized = new InitializeCommand(optionsSection, _credentialsHandler)
                     .Execute(null!);
             } 
-            var signature = new Signature(_identity, DateTimeOffset.UtcNow);           
+            var signature = new Signature(_identity, DateTimeOffset.UtcNow);  
             
-            if (optionsSection.FilePath is not null)
-                filepath = Path.Combine(optionsSection.FilePath, info.FileName);
-            else
-                filepath = info.FileName;
-
-            if (File.Exists(filepath))
-                cachedFilepath = new CacheFileCommand(filepath)
+            filepath = optionsSection.FilePath is not null
+                ? filepath = Path.Combine(optionsSection.FilePath, info.FileName)
+                : filepath = info.FileName;
+            repositoryFilepath = Path.Combine(optionsSection.LocalPath, filepath);
+            if (File.Exists(repositoryFilepath))
+                cachedFilepath = new CacheFileCommand(repositoryFilepath)
                     .Execute(repository);
 
             new PullChangesCommand(signature, _credentialsHandler)
@@ -83,11 +83,14 @@ internal class GitRepository : IGitlabService
                 .Execute(repository);
             new PushCommand(optionsSection, _credentialsHandler)
                 .Execute(repository);
+
+            if(cachedFilepath!= null)
+                File.Delete(cachedFilepath);
         }
         catch (LibGit2SharpException exception)
         {
             if (exception is not EmptyCommitException)
-                new RollbackCommand(filepath, cachedFilepath)                    
+                new RollbackCommand(repositoryFilepath, cachedFilepath)                    
                     .Execute(repository);
             _logger?.LogError($"Exception occured while commiting file: {exception}");
             return new ErrorResult<bool>(HandleLibGitException(exception));
