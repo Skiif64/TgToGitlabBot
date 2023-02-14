@@ -31,37 +31,17 @@ public class AddFileCommandTests
     public void WhenAddFile_ThenSHA256HashShouldBeEquals(string filename, string expectedHash)
     {
         var stream = new MemoryStream(GetFileBytes($"Fixtures/{filename}"));
-        var sha256 = SHA256.Create();
-        var commitInfo = new CommitInfo
-        {
-            Content = stream,
-            Message = "message",
-            FileName = filename
-        };
+        var sha256 = SHA256.Create();  
 
-        var optionsSection = new GitOptionsSection
-        {
-            LocalPath = REPOSITORY_PATH
-        };
+        var filepath = Path.Combine(REPOSITORY_PATH, filename);
 
-        var result = new AddFileCommand(commitInfo, optionsSection).Execute(null!);
-        var filepath = Path.Combine(REPOSITORY_PATH, commitInfo.FileName);
+        var result = new AddFileCommand(stream, filepath).Execute(null!);        
         var actualhash = sha256.ComputeHash(GetFileBytes(filepath));
         var actualhashString = ByteArrayToHexString(actualhash);
         Assert.IsTrue(result);
         Assert.That(actualhashString, Is.EqualTo(expectedHash));
 
-    }
-
-    private Stream GetStreamFromFile(string filepath)
-    {
-        var memoryStream = new MemoryStream();
-        var binaryWriter = new BinaryWriter(memoryStream);
-        using var fileStream = new FileStream(filepath, FileMode.Open);
-        using var binaryReader = new BinaryReader(fileStream);
-        binaryWriter.Write(binaryReader.ReadBytes((int)fileStream.Length));
-        return memoryStream;
-    }
+    }    
 
     private byte[] GetFileBytes(string filepath)
     {
