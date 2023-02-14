@@ -2,7 +2,7 @@
 
 namespace Bot.Integration.Git.GitCommands;
 
-internal class StageAndCommitCommand : IGitCommand
+internal class StageAndCommitCommand : IGitCommand<Commit?>
 {
     private readonly string _filepath;
     private readonly string _commitMessage;
@@ -14,10 +14,9 @@ internal class StageAndCommitCommand : IGitCommand
         _commitMessage = commitMessage;
         _signature = signature;
     }
-    public bool Execute(IRepository repository)
+    public Commit? Execute(IRepository repository)
     {        
         Commands.Stage(repository, _filepath);
-        var commit = repository.Commit(_commitMessage, _signature, _signature);
-        return commit != null;
+        return repository.Commit(_commitMessage, _signature, _signature);        
     }
 }
