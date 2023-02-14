@@ -15,11 +15,13 @@
 >
 Получить Api id и Api hash можно следуя инструкции Telegram: https://core.telegram.org/api/obtaining_api_id
 #### Настройка Telegram бота
+
 Для работы бота необходимо выключить privacy mode. Для этого необходимо:
 - В @BotFather использовать команду /mybots
 - Перейти в меню Group privacy
 - Выключить privacy mode
 #### Настройка appsettings.json
+
 Файл appsettings.json должен распологаться по пути conf/appsettings.json.
 В директории conf распологается файл appsettings.example.json, являющийся шаблоном 
 appsettings.json
@@ -103,15 +105,20 @@ appsettings.json
 ### Структура бота
 
 Бот разделен на проекты:
-- Bot.App - Основа для запуска бота. Использует ASP .NET Core для работы с Webhook. Имеется класс Program, в котором регистрируются все зависимости и UpdateController для приема входящий сообщений от локального сервера Telegram Bot Api.
+
+- Bot.App - Основа для запуска бота. Использует ASP .NET Core для работы с Webhook. Имеется класс Program, в котором регистрируются все зависимости и UpdateController для приема входящий через Webhook.
 - Bot.ConsoleApp - больше не используется
 - Bot.Core - проект с базовыми типами и интерфейсами.
 - Bot.Integration.Git - проект, содержащий логику работы с Git. Работает на базе библиотеки LibGit2Sharp. Проект содержит:
-
   - GitOptions - класс, на который происходит маппинг конфигурации Git
   - GitRepository - класс, через который происходит работа с Git
   - Команды - классы, в которых находится конкретная логика работы с Git
   - DependencyInjection - вспомогательный класс для упрощения регистрации зависимостей
   - GitConfigurationChecker - класс для проверки наличия конфигурации Git
 - Bot.Integration.Gitlab - проект, содержащий логику работы с Api Gitlab, больше не используется
-- Bot.Integration.Telegram - проект, содержащий логику работы с Telegram. Работает на базе библиотеки Telegram.Bot
+- Bot.Integration.Telegram - проект, содержащий логику работы с Telegram. Работает на базе библиотеки Telegram.Bot. Проект содержит:
+  - TelegramBot - класс для старта бота. Регистрируется в контейнере зависимостей как HostService
+  - TelegramBotOptions - класс конфигурации бота
+  - TelegramBotClientWrapper - обертка над ITelegramBotClient. Предназначена для освобождения памяти HttpClient, находящегося внутри TelegramBotCLient
+  - TelegramBotUpdateHandler - обработчик входящих Update. Определяет тип update и вызывает подходящий обработчик
+  - Обработчики StatusCommandHandler и MessageWithDocumentHandler - обработчики для обработки входящих сообщений
