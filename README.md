@@ -1,36 +1,47 @@
 # TgToGitlabBot
-### Что умеет данный бот
+
+## Что умеет данный бот
 
 Данный бот умеет получать сообщение с приклепленным файлом из чата/канала и коммитить его в Gitlab (Возможно в любой другой Git).
-#### Действия, воспринимаемые ботом:
+### Действия, воспринимаемые ботом:
+
 - /status - отображает наличие конфигурации данного чата
 - Любое сообщение с приклепленным файлом - добавляет файл в репозиторий, соответствующий данному чату, и делает коммит с сообщением, приклепленным к файлу
 
-### Деплой бота
-#### Настройка .env docker-compose
-Рядом с файлом docker-compose.yml необходимо создать файл .env и добавить в него требуемые переменные окружения:
+## Деплой бота через docker-compose
+
+### Настройка .env docker-compose
+
+Рядом с файлом docker-compose.yml необходимо создать файл .env (.env.example как пример) и добавить в него требуемые переменные окружения:
 >TELEGRAM_API_ID={id}
 >
 >TELEGRAM_API_HASH={hash}
 >
+>TELEGRAM_PROXY={http://{host}:{port}} - необязателен. Требуется только в том случае, если перед Local Telegram Bot Api есть прокси
+>
 Получить Api id и Api hash можно следуя инструкции Telegram: https://core.telegram.org/api/obtaining_api_id
-#### Настройка Telegram бота
+
+### Настройка Telegram бота
+
+Получить токен бота можно следуя инструкции от Telegram: https://core.telegram.org/bots/features#botfather
 
 Для работы бота необходимо выключить privacy mode. Для этого необходимо:
 - В @BotFather использовать команду /mybots
 - Перейти в меню Group privacy
 - Выключить privacy mode
-#### Настройка appsettings.json
+
+### Настройка appsettings.json
 
 Файл appsettings.json должен распологаться по пути conf/appsettings.json.
 В директории conf распологается файл appsettings.example.json, являющийся шаблоном 
-appsettings.json
+
+appsettings.example.json
 ```json
 {
   "TelegramBot": {
     "BotToken": "BotToken",
     "BaseUrl": "http://telegram-local-api:8081",    
-    "WebhookUrl": "http://botapp:80/update"
+    "WebhookUrl": "http://botapp:8080/update"
   },
   "GitOptions": {
     "Username": "Bot user username",
@@ -62,23 +73,23 @@ appsettings.json
   "AllowedHosts": "*"
 }
 ```
-#### Параметры appsettings.json
+### Параметры appsettings.json
 
-> TelegramBot - настройка Telegram бота
+> TelegramBot - секция конфигурации Telegram бота
 >
 > BotToken - токен бота Telegram
 > 
 > BaseUrl - url локального Telegram Bot Api, в формате: http://{имя контейнера с локальным API}:{порт(8081 по умолчанию)}
 >
-> WebhookUrl - url вебхука бота, в формате: http://{имя контейнера бота}:{порт(80 по умолчанию)}/{endpoint(update по умолчанию)}
+> WebhookUrl - url вебхука бота, в формате: http://{имя контейнера бота}:{порт(8080 по умолчанию)}/{endpoint(update по умолчанию)}
 >
-> GitOptions - настройка git
+> GitOptions - секция конфигурации git
 >
 > Username - имя пользователя Git
 >
 > Email - email пользователя Git
 >
->> ChatOptions - настройка конфигурации для конкретного чата
+>> ChatOptions - секция конфигурации для конкретного чата
 >>
 >>> ChatId - id чата для которого применяются данная конфигурация
 >>>
@@ -90,22 +101,22 @@ appsettings.json
 >>>
 >>> LocalPath - относительный путь до директории с репозиторием(в случае отсутствия данной директории она будет создана)
 >>>
->>> FilePath - дополнительный путь для файла
+>>> FilePath - дополнительный путь для файла, необязателен
 
 
-### Структура docker-compose
+## Структура docker-compose
+
 Имеются 2 контейнера:
 - botapp - контейнер самого бота
-- telegram-local-api - локальный сервер Telegram Bot Api
+- telegram-local-api - локальный сервер Telegram Bot Api. Оригинальный образ контейнера: https://hub.docker.com/r/aiogram/telegram-bot-api
 
 Имеются следующие тома:
+- telegram-bot-api-data - хранилище принимаемых файлов Telegram Bot Api. Монтируется на /var/lib/telegram-bot-api
+- telegram-bot-git-data - хранилище репозиториев, с которыми работает бот. Монтируется на /app/repository
 
-- telegram-bot-api-data - хранилище принимаемых файлов Telegram Bot Api
-- telegram-bot-git-data - хранилище репозиториев, с которыми работает бот
-### Структура бота
+## Структура бота
 
 Бот разделен на проекты:
-
 - Bot.App - Основа для запуска бота. Использует ASP .NET Core для работы с Webhook. Имеется класс Program, в котором регистрируются все зависимости и UpdateController для приема входящий через Webhook.
 - Bot.ConsoleApp - больше не используется
 - Bot.Core - проект с базовыми типами и интерфейсами.
