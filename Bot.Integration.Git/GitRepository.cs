@@ -7,6 +7,7 @@ using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Test.CMD")]
@@ -46,8 +47,11 @@ internal class GitRepository : IGitlabService
         {
             _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
             return new ErrorResult<bool>(new ConfigurationNotSetException(info.FromChatId));
-        }        
+        }
 
+        Repository repository = new Repository(optionsSection.LocalPath);
+        string filepath = string.Empty;
+        string? cachedFilepath = null;
         try
         {
             if (!_initialized)
@@ -59,15 +63,18 @@ internal class GitRepository : IGitlabService
                 };
                 _initialized = new InitializeCommand(optionsSection, _credentialsHandler)
                     .Execute(null!);
-            }
-            using var repository = new Repository(optionsSection.LocalPath);
-
+            } 
             var signature = new Signature(_identity, DateTimeOffset.UtcNow);           
-            string filepath;
+            
             if (optionsSection.FilePath is not null)
                 filepath = Path.Combine(optionsSection.FilePath, info.FileName);
             else
                 filepath = info.FileName;
+
+            if (File.Exists(filepath))
+                cachedFilepath = new CacheFileCommand(filepath)
+                    .Execute(repository);
+
             new PullChangesCommand(signature, _credentialsHandler)
                 .Execute(repository);
             new AddFileCommand(info, optionsSection)
@@ -78,26 +85,21 @@ internal class GitRepository : IGitlabService
                 .Execute(repository);
         }
         catch (LibGit2SharpException exception)
-        {            
+        {
+            if (exception is not EmptyCommitException)
+                new RollbackCommand(filepath, cachedFilepath)                    
+                    .Execute(repository);
             _logger?.LogError($"Exception occured while commiting file: {exception}");
             return new ErrorResult<bool>(HandleLibGitException(exception));
         }
+        finally
+        {
+            repository?.Dispose();
+        }
         _logger?.LogInformation($"Succesufully commited and push file {info.FileName}to project {optionsSection.Url}, branch {optionsSection.Branch}");
         return new SuccessResult<bool>(true);
-    }
+    }   
     
-    private string CacheFile(string filepath)
-    {
-        var cachedFilepath = filepath + ".cached";
-
-        using var sourceFileStream = File.OpenRead(filepath);
-        using var sourceBinaryReader = new BinaryReader(sourceFileStream);
-        using var destFileStream = File.Create(cachedFilepath);
-        using var destBinaryWriterWriter = new BinaryWriter(destFileStream);
-
-        destBinaryWriterWriter.Write(sourceBinaryReader.ReadBytes((int)sourceFileStream.Length));
-        return cachedFilepath;
-    }
 
     private Exception HandleLibGitException(LibGit2SharpException exception)
     {
