@@ -35,10 +35,10 @@ public class AddFileCommandTests
 
         var filepath = Path.Combine(REPOSITORY_PATH, filename);
 
-        var result = new AddFileCommand(stream, filepath).Execute(null!);        
+        new AddFileCommand(stream, filepath).Execute(null!);        
         var actualhash = sha256.ComputeHash(GetFileBytes(filepath));
         var actualhashString = ByteArrayToHexString(actualhash);
-        Assert.IsTrue(result);
+        
         Assert.That(actualhashString, Is.EqualTo(expectedHash));
 
     }    
