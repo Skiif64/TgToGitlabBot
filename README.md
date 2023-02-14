@@ -60,12 +60,15 @@ appsettings.json
   "AllowedHosts": "*"
 }
 ```
+#### Параметры appsettings.json
+
 > TelegramBot - настройка Telegram бота
+>
 > BotToken - токен бота Telegram
 > 
-> BaseUrl - url локального Telegram Bot Api
+> BaseUrl - url локального Telegram Bot Api, в формате: http://{имя контейнера с локальным API}:{порт(8081 по умолчанию)}
 >
-> WebhookUrl - url вебхука бота
+> WebhookUrl - url вебхука бота, в формате: http://{имя контейнера бота}:{порт(80 по умолчанию)}/{endpoint(update по умолчанию)}
 >
 > GitOptions - настройка git
 >
@@ -78,7 +81,8 @@ appsettings.json
 >>> ChatId - id чата для которого применяются данная конфигурация
 >>>
 >>> Url - url репозитория
->>> AccessToken - токен доступа или пароль аккаунта
+>>>
+>>> AccessToken - персональный/проектный/групповой токен доступа или пароль аккаунта Gitlab/другого Git
 >>>
 >>> Branch - ветка, в которую будут происходить коммиты(ветка должна существовать)
 >>>
