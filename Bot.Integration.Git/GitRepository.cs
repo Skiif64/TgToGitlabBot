@@ -88,9 +88,8 @@ internal class GitRepository : IGitlabService
                 File.Delete(cachedFilepath);
         }
         catch (LibGit2SharpException exception)
-        {
-            if (exception is not EmptyCommitException)
-                new RollbackCommand(repositoryFilepath, cachedFilepath)                    
+        {            
+                new RollbackCommand(repositoryFilepath, cachedFilepath, exception is EmptyCommitException)                    
                     .Execute(repository);
             _logger?.LogError($"Exception occured while commiting file: {exception}");
             return new ErrorResult<bool>(HandleLibGitException(exception));

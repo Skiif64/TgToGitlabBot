@@ -6,20 +6,22 @@ internal class RollbackCommand : IGitCommand
 {
     private readonly string _filepath;
     private readonly string? _cachedFilepath;
-    public RollbackCommand(string filepath, string? cachedFilepath)
+    private readonly bool _emptyCommit;
+    public RollbackCommand(string filepath, string? cachedFilepath, bool emptyCommit)
     {
         _filepath = filepath;
         _cachedFilepath = cachedFilepath;
+        _emptyCommit = emptyCommit;
     }
     public void Execute(IRepository repository)
     {
-       if(_cachedFilepath != null)
+        if (_cachedFilepath != null)
         {
             ReturnCachedToOriginalPosition(_filepath, _cachedFilepath);
             File.Delete(_cachedFilepath);
         }
-
-        Commands.Unstage(repository, _filepath);        
+        if (!_emptyCommit)
+            Commands.Unstage(repository, _filepath);
     }
 
     private void ReturnCachedToOriginalPosition(string originalFilepath, string cachedFilepath)
