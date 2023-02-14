@@ -77,7 +77,7 @@ internal class GitRepository : IGitlabService
 
             new PullChangesCommand(signature, _credentialsHandler)
                 .Execute(repository);
-            new AddFileCommand(info, optionsSection)
+            new AddFileCommand(info.Content!, repositoryFilepath)
                 .Execute(repository);
             new StageAndCommitCommand(filepath, info.Message, signature)
                 .Execute(repository);
