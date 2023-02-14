@@ -3,7 +3,7 @@ using LibGit2Sharp.Handlers;
 
 namespace Bot.Integration.Git.GitCommands;
 
-internal class InitializeCommand : IGitCommand
+internal class InitializeCommand : IGitCommand<bool>
 {
     private readonly GitOptionsSection _optionsSection;
     private readonly CredentialsHandler _credentials;

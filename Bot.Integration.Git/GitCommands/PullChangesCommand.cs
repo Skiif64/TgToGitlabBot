@@ -14,7 +14,7 @@ internal class PullChangesCommand : IGitCommand
         _credentials = credentials;
     }
 
-    public bool Execute(IRepository repository)
+    public void Execute(IRepository repository)
     {
         var options = new PullOptions
         {
@@ -28,7 +28,6 @@ internal class PullChangesCommand : IGitCommand
             }
 
         };
-        Commands.Pull((Repository)repository, _signature, options);
-        return true;
+        Commands.Pull((Repository)repository, _signature, options);        
     }
 }

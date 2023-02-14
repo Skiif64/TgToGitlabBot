@@ -14,15 +14,14 @@ internal class PushCommand : IGitCommand
         _optionsSection = optionsSection;
         _credentials = credentials;
     }
-    public bool Execute(IRepository repository)
+    public void Execute(IRepository repository)
     {
         var remote = repository.Network.Remotes["origin"];
         if (remote == null)
-            return false;        
+            throw new ArgumentNullException(nameof(remote));   
         repository.Network.Push(remote, $@"refs/heads/{_optionsSection.Branch}", new PushOptions
         {
             CredentialsProvider = _credentials
-        });
-        return true;
+        });        
     }
 }

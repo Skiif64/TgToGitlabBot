@@ -11,7 +11,7 @@ internal class RollbackCommand : IGitCommand
         _filepath = filepath;
         _cachedFilepath = cachedFilepath;
     }
-    public bool Execute(IRepository repository)
+    public void Execute(IRepository repository)
     {
        if(_cachedFilepath != null)
         {
@@ -19,9 +19,7 @@ internal class RollbackCommand : IGitCommand
             File.Delete(_cachedFilepath);
         }
 
-        Commands.Unstage(repository, _filepath);
-        
-        return true;
+        Commands.Unstage(repository, _filepath);        
     }
 
     private void ReturnCachedToOriginalPosition(string originalFilepath, string cachedFilepath)

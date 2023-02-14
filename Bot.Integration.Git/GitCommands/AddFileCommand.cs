@@ -13,7 +13,7 @@ internal class AddFileCommand : IGitCommand
         _content = content;
         _filepath = filepath;
     }
-    public bool Execute(IRepository repository)
+    public void Execute(IRepository repository)
     {
         if (_content is null)
             throw new ArgumentNullException(nameof(_content));
@@ -30,7 +30,6 @@ internal class AddFileCommand : IGitCommand
                 else
                     fileStream.Write(buffer);
             }
-        }
-        return true;
+        }        
     }
 }
