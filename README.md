@@ -14,11 +14,11 @@
 ### Настройка .env docker-compose
 
 Рядом с файлом docker-compose.yml необходимо создать файл .env (.env.example как пример) и добавить в него требуемые переменные окружения:
->TELEGRAM_API_ID={id}
+> - TELEGRAM_API_ID={id}
 >
->TELEGRAM_API_HASH={hash}
+> - TELEGRAM_API_HASH={hash}
 >
->TELEGRAM_PROXY={http://{host}:{port}} - необязателен. Требуется только в том случае, если перед Local Telegram Bot Api есть прокси
+> - TELEGRAM_PROXY={http://{host}:{port}} - необязателен. Требуется только в том случае, если перед Local Telegram Bot Api есть прокси
 >
 Получить Api id и Api hash можно следуя инструкции от Telegram: https://core.telegram.org/api/obtaining_api_id
 
@@ -75,40 +75,40 @@ appsettings.example.json
 ```
 ### Параметры appsettings.json
 
-> TelegramBot - секция конфигурации Telegram бота
+> - TelegramBot - секция конфигурации Telegram бота
 >
-> BotToken - токен бота Telegram
+>   - BotToken - токен бота Telegram
 > 
-> BaseUrl - url локального Telegram Bot Api, в формате: http://{имя контейнера с локальным API}:{порт(8081 по умолчанию)}
+>   - BaseUrl - url локального Telegram Bot Api, в формате: http://{имя контейнера с локальным API}:{порт(8081 по умолчанию)}
 >
-> WebhookUrl - url вебхука бота, в формате: http://{имя контейнера бота}:{порт(8080 по умолчанию)}/{endpoint(update по умолчанию)}
+>   - WebhookUrl - url вебхука бота, в формате: http://{имя контейнера бота}:{порт(8080 по умолчанию)}/{endpoint(update по умолчанию)}
 >
-> GitOptions - секция конфигурации git
+> - GitOptions - секция конфигурации Git
 >
-> Username - имя пользователя Git
+>   - Username - имя пользователя Git
 >
-> Email - email пользователя Git
+>   - Email - email пользователя Git
 >
->> ChatOptions - секция конфигурации для конкретного чата
->>
->>> ChatId - id чата для которого применяются данная конфигурация. Для получения chatId можно использовать стороннего бота или воспользоваться командой /status у данного бота
->>>
->>> Url - url репозитория
->>>
->>> AccessToken - персональный/проектный/групповой токен доступа или пароль аккаунта Gitlab/другого Git
->>>
->>> Branch - ветка, в которую будут происходить коммиты(ветка должна существовать)
->>>
->>> LocalPath - относительный путь до директории с репозиторием(в случае отсутствия данной директории она будет создана). Важно, чтобы путь до репозитория начинался с **repository**
->>>
->>> FilePath - дополнительный путь для файла, необязателен
+>   - ChatOptions - секция конфигурации для конкретного чата
+> 
+>    - ChatId - id чата для которого применяются данная конфигурация. Для получения chatId можно использовать стороннего бота или воспользоваться командой /status у данного бота
+>
+>    - Url - url репозитория
+>
+>    - AccessToken - персональный/проектный/групповой токен доступа или пароль аккаунта Gitlab/другого Git
+>
+>    - Branch - ветка, в которую будут происходить коммиты(ветка должна существовать)
+>
+>    - LocalPath - относительный путь до директории с репозиторием(в случае отсутствия данной директории она будет создана). Важно, чтобы путь до репозитория начинался с **repository**
+>
+>    - FilePath - дополнительный путь для файла, необязателен
 
 
 Для старта бота введите в командную строку:
 >
-> cd {путь до корня проекта}
+> - cd {путь до корня проекта}
 > 
-> docker-compose up --detach
+> - docker-compose up --detach
 
 ## Структура docker-compose
 
@@ -117,8 +117,8 @@ appsettings.example.json
 - telegram-local-api - локальный сервер Telegram Bot Api. Оригинальный образ контейнера: https://hub.docker.com/r/aiogram/telegram-bot-api
 
 Имеются следующие тома:
-- telegram-bot-api-data - хранилище принимаемых файлов Telegram Bot Api. Монтируется на /var/lib/telegram-bot-api
-- telegram-bot-git-data - хранилище репозиториев, с которыми работает бот. Монтируется на /app/repository
+- telegram-bot-api-data - хранилище принимаемых файлов Telegram Bot Api. Монтируется на /var/lib/telegram-bot-api в контейнера botapp и telegram-local-api
+- telegram-bot-git-data - хранилище репозиториев, с которыми работает бот. Монтируется на /app/repository в контейнер botapp
 
 ## Структура бота
 
