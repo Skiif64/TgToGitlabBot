@@ -12,6 +12,7 @@ services:
         - ./conf:/app/conf 
         - telegram-bot-api-data:/var/lib/telegram-bot-api
         - telegram-bot-git-data:/app/repository
+    restart: unless-stopped
             
 
   telegram-local-api:
@@ -26,6 +27,7 @@ services:
         - telegram-bot-api-data:/var/lib/telegram-bot-api
     ports:
       - 8081:8081
+    restart: unless-stopped
 volumes:
   telegram-bot-api-data:  
   telegram-bot-git-data:
