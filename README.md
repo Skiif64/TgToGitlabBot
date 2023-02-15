@@ -117,6 +117,7 @@ appsettings.example.json
 > 
 > - docker-compose up --detach
 
+**Важно!** Если бот был перенесен с одного локального (или обычного) telegram bot api, при первом запуске в appsettings.json, необходимо установить Logout=true. Бот будет недоступен в течении 10 минут.
 ## Структура docker-compose
 
 Имеются 2 контейнера:
