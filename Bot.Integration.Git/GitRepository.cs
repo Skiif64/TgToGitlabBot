@@ -16,7 +16,7 @@ namespace Bot.Integration.Git;
 internal class GitRepository : IGitlabService
 {
     private readonly GitOptions _options;
-    private readonly ILogger<GitRepository>? _logger;    
+    private readonly ILogger<GitRepository>? _logger;
     private CredentialsHandler _credentialsHandler = null!;
     private Identity _identity;
     private bool _initialized;
@@ -49,7 +49,7 @@ internal class GitRepository : IGitlabService
             return new ErrorResult<bool>(new ConfigurationNotSetException(info.FromChatId));
         }
 
-        Repository repository = new Repository(optionsSection.LocalPath);
+        Repository repository = null!;
         string filepath = string.Empty;
         string repositoryFilepath = string.Empty;
         string? cachedFilepath = null;
@@ -62,11 +62,14 @@ internal class GitRepository : IGitlabService
                     Username = _options.Username,
                     Password = optionsSection.AccessToken
                 };
-                _initialized = new InitializeCommand(optionsSection, _credentialsHandler)
-                    .Execute(null!);
-            } 
-            var signature = new Signature(_identity, DateTimeOffset.UtcNow);  
-            
+                new InitializeCommand(optionsSection, _credentialsHandler)
+                     .Execute(null!);
+                _initialized = true;
+            }
+            repository = new Repository(optionsSection.LocalPath);
+
+            var signature = new Signature(_identity, DateTimeOffset.UtcNow);
+
             filepath = optionsSection.FilePath is not null
                 ? filepath = Path.Combine(optionsSection.FilePath, info.FileName)
                 : filepath = info.FileName;
@@ -84,12 +87,13 @@ internal class GitRepository : IGitlabService
             new PushCommand(optionsSection, _credentialsHandler)
                 .Execute(repository);
 
-            if(cachedFilepath!= null)
+            if (cachedFilepath != null)
                 File.Delete(cachedFilepath);
         }
         catch (LibGit2SharpException exception)
-        {            
-                new RollbackCommand(repositoryFilepath, cachedFilepath, exception is EmptyCommitException)                    
+        {
+            if (repository is not null)
+                new RollbackCommand(repositoryFilepath, cachedFilepath, exception is EmptyCommitException)
                     .Execute(repository);
             _logger?.LogError($"Exception occured while commiting file: {exception}");
             return new ErrorResult<bool>(HandleLibGitException(exception));
@@ -100,8 +104,8 @@ internal class GitRepository : IGitlabService
         }
         _logger?.LogInformation($"Succesufully commited and push file {info.FileName}to project {optionsSection.Url}, branch {optionsSection.Branch}");
         return new SuccessResult<bool>(true);
-    }   
-    
+    }
+
 
     private Exception HandleLibGitException(LibGit2SharpException exception)
     {
