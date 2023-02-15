@@ -35,7 +35,13 @@ internal class TelegramBot : ITelegramBot, IHostedService
     public async Task StartWebhookAsync(CancellationToken cancellationToken)
     {
         var client = _serviceProvider.GetRequiredService<ITelegramBotClient>();
-
+        if(_options.Logout)
+        {
+            await client.DeleteWebhookAsync(cancellationToken: cancellationToken);            
+            await client.LogOutAsync(cancellationToken);
+            _logger.LogWarning("Bot is logging out. Bot can't login about to 10 minutes");
+            await Task.Delay(660000, cancellationToken);
+        }
         if (_options.WebhookUrl is null)
             throw new ArgumentException("Webhook is not set");
         await client.SetWebhookAsync(
@@ -50,6 +56,6 @@ internal class TelegramBot : ITelegramBot, IHostedService
     {
         _logger.LogInformation("Deleting webhook");
         var client = _serviceProvider.GetRequiredService<ITelegramBotClient>();
-        await client.DeleteWebhookAsync(cancellationToken: cancellationToken);
+        await client.DeleteWebhookAsync(cancellationToken: cancellationToken);        
     }
 }
