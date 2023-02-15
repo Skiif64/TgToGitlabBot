@@ -4,6 +4,7 @@ public class TelegramBotOptions
 {
     public const string Path = "TelegramBot";
     public string BotToken { get; init; } = string.Empty;
-    public string? BaseUrl { get; init; }   
+    public string? BaseUrl { get; init; }
+    public bool Logout { get; init; }
     public string? WebhookUrl { get; init; }
 }
