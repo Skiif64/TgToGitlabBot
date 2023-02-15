@@ -41,7 +41,8 @@ appsettings.example.json
 {
   "TelegramBot": {
     "BotToken": "BotToken",
-    "BaseUrl": "http://telegram-local-api:8081",    
+    "BaseUrl": "http://telegram-local-api:8081",
+    "Logout": false,
     "WebhookUrl": "http://botapp:8080/update"
   },
   "GitOptions": {
@@ -80,6 +81,8 @@ appsettings.example.json
 >   - BotToken - токен бота Telegram
 > 
 >   - BaseUrl - url локального Telegram Bot Api, в формате: http://{имя контейнера с локальным API}:{порт(8081 по умолчанию)}
+>
+>   - Logout - если true, при старте бот разлогиниться в Telegram. Данный параметр имеет смысл ставить в true, если будет необходимость перенести бота с одного локального сервера на другой. **При старте с logout = true, бот будет недоступен до 10 минут**
 >
 >   - WebhookUrl - url вебхука бота, в формате: http://{имя контейнера бота}:{порт(8080 по умолчанию)}/{endpoint(update по умолчанию)}
 >
