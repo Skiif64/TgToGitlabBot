@@ -21,33 +21,32 @@ public class AddFileCommandTests
         Directory.CreateDirectory(REPOSITORY_PATH);
     }
 
-    [TestCase("UTF-8-BIG.txt", "da51f821b7f49c35830356b68ab1bf50e63f9fcdd2f52fc981bfe318b2832232")]
-    [TestCase("UTF-8.txt", "32158db1e9eb4a80c34f1f1ae11f5868ad80606c1a6e1ac4fbe95e6228da0c34")]
-    [TestCase("WINDOWS-1251.txt", "35beb404565d5baab7bd964b9181ec3d9a730ec35320695b441eb6b5c889d7f4")]
-    public async Task WhenAddFile_ThenSHA256HashShouldBeEquals(string filename, string expectedHash)
+    [TestCase("UTF-8-BIG.txt")]
+    [TestCase("UTF-8.txt")]
+    [TestCase("WINDOWS-1251.txt")]
+    public async Task WhenAddFile_ThenSHA256HashShouldBeEquals(string filename)
     {
-        var stream = new MemoryStream(GetFileBytes($"Fixtures/{filename}"));
-        var sha256 = SHA256.Create(); 
-        var filepath = Path.Combine(REPOSITORY_PATH, filename);
-        var request = new AddFileCommand(stream, filepath);
+        var originalFilepath = $"Fixtures/{filename}";
+        await using var stream = File.OpenRead(originalFilepath);
+        var expectedHash = GetHashString(originalFilepath);
+        var repositoryFilepath = Path.Combine(REPOSITORY_PATH, filename);
+        var request = new AddFileCommand(stream, repositoryFilepath);
         var handler = new AddFileCommandHandler();
 
         await handler.Handle(request, default);
-        
-        var actualhash = sha256.ComputeHash(GetFileBytes(filepath));
-        var actualhashString = ByteArrayToHexString(actualhash);        
-        Assert.That(actualhashString, Is.EqualTo(expectedHash));
 
-    }    
+        var actualhash = GetHashString(repositoryFilepath);      
+        Assert.That(actualhash, Is.EqualTo(expectedHash));
 
-    private byte[] GetFileBytes(string filepath)
+    }
+    private static string GetHashString(string filepath)
     {
-        using var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
-        using var binaryReader = new BinaryReader(fileStream);
-        return binaryReader.ReadBytes((int)fileStream.Length);
+        var sha256 = SHA256.Create();
+        using var fileStream = File.OpenRead(filepath);
+        return ByteArrayToHexString(sha256.ComputeHash(fileStream));
     }
 
-    private string ByteArrayToHexString(byte[] bytes)
+    private static string ByteArrayToHexString(byte[] bytes)
     {
         string output = string.Empty;
         foreach (var @byte in bytes)
