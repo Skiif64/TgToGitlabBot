@@ -1,5 +1,4 @@
 ﻿using Bot.Core.Exceptions;
-using Bot.Integration.Gitlab.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -37,22 +36,7 @@ namespace Bot.App.Controllers
             {
                 _logger.LogError($"Telegram API error. Error code: {exception.ErrorCode}. Message: {exception.Message}");
                 return BadRequest();
-            }
-            catch (ValidationException exception)
-            {
-                _logger.LogError($"Validation exception occured: {exception.Message}.");
-                return BadRequest(exception.Message);
-            }
-            catch (AuthentificationException exception)
-            {
-                _logger.LogError($"Authentification exception occured: {exception.Message}.");
-                return Unauthorized(exception.Message);
-            }
-            catch (TooLargeException exception)
-            {
-                _logger.LogError($"Too large file recieved: {exception.Message}");
-                return Accepted();
-            }
+            }            
             catch (Exception exception)
             {
                 _logger.LogCritical($"Exception occured: {exception.Message}.");
