@@ -13,7 +13,6 @@ builder.Services.Configure<TelegramBotOptions>(builder.Configuration.GetRequired
 builder.Services.AddTransient<HttpClient>();
 builder.Services.AddGit();
 builder.Services.AddTelegramBot();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GitOptions>());
 var app = builder.Build();
 
 app.MapControllers();
