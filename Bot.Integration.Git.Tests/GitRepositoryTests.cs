@@ -50,11 +50,12 @@ public class GitRepositoryTests
     }
 
     private IServiceProvider SetupServiceProvider() =>
-        new ServiceCollection()        
+        new ServiceCollection()
+        .AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GitRepository>())
         .AddTransient<IRequestHandler<InitializeCommand>>(sp => _initializeHandlerMock.Object)
         .AddTransient<IRequestHandler<PullChangesCommand>>(sp => _pullHandlerMock.Object)
-        .AddTransient<IRequestHandler<AddFileCommand>>(sp => _addfileHandlerMock.Object)
-        .AddTransient<IRequestHandler<CacheFileCommand, string>>(sp => _cacheHandlerMock.Object)
+        //.AddTransient<IRequestHandler<AddFileCommand>>(sp => _addfileHandlerMock.Object)
+        //.AddTransient<IRequestHandler<CacheFileCommand, string>>(sp => _cacheHandlerMock.Object)
         .AddTransient<IRequestHandler<PushCommand>>(sp => _pushHandlerMock.Object)
         .AddTransient<IRequestHandler<StageAndCommitCommand, Commit>>(sp => _stageHandlerMock.Object)
         .AddTransient<IRequestHandler<RollbackCommand>>(sp => _rollbackHandlerMock.Object)
@@ -99,7 +100,4 @@ public class GitRepositoryTests
         Assert.IsTrue(result);        
         _rollbackHandlerMock.Verify(x => x.Handle(It.IsAny<RollbackCommand>(), default), Times.Never);
     }
-
-
-
 }
