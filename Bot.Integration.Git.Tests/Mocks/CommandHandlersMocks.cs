@@ -15,7 +15,7 @@ internal class CommandHandlersMocks
         mock.Setup(x => x.Handle(It.IsAny<InitializeCommand>(), default))
             .Returns(() =>
             {
-                Repository.Init(repositoryPath);
+                Repository.Init(repositoryPath);                
                 return Task.CompletedTask;
             });
         return mock;
