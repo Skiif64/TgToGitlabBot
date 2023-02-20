@@ -1,11 +1,13 @@
-﻿using Bot.Integration.Git.GitCommands.Base;
+﻿using Bot.Core.Extensions;
+using Bot.Integration.Git.GitCommands.Base;
 
 namespace Bot.Integration.Git.GitCommands.AddFile;
 
 internal class AddFileCommandHandler : IGitCommandHandler<AddFileCommand>
 {
-    public Task Handle(AddFileCommand request, CancellationToken cancellationToken)
+    public async Task Handle(AddFileCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await using var fileStream = new FileStream(request.Filepath, FileMode.OpenOrCreate, FileAccess.Write);
+        await request.ContentStream.WriteBinaryToAsync(fileStream, cancellationToken: cancellationToken);
     }
 }
