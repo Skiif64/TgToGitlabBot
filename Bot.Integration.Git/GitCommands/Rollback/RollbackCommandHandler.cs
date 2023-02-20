@@ -1,5 +1,4 @@
-﻿using Bot.Core.Extensions;
-using Bot.Integration.Git.GitCommands.Base;
+﻿using Bot.Integration.Git.GitCommands.Base;
 using LibGit2Sharp;
 
 namespace Bot.Integration.Git.GitCommands.Rollback;
@@ -22,6 +21,6 @@ internal class RollbackCommandHandler : IGitCommandHandler<RollbackCommand>
     {
         await using var cachedFileStream = File.OpenRead(cachedFilepath);
         await using var destFileStream = File.OpenWrite(originalFilepath);
-        await cachedFileStream.WriteBinaryToAsync(destFileStream, cancellationToken: cancellationToken);
+        await cachedFileStream.CopyToAsync(destFileStream, 1024, cancellationToken);
     }
 }

@@ -1,5 +1,4 @@
-﻿using Bot.Core.Extensions;
-using Bot.Integration.Git.GitCommands.Base;
+﻿using Bot.Integration.Git.GitCommands.Base;
 
 namespace Bot.Integration.Git.GitCommands.CacheFile;
 
@@ -12,7 +11,7 @@ internal class CacheFileCommandHandler : IGitCommandHandler<CacheFileCommand, st
 
         await using var sourceFileStream = File.OpenRead(request.Filepath);
         await using var destFileStream = File.Create(cachedFilepath);
-        await sourceFileStream.WriteBinaryToAsync(destFileStream, cancellationToken: cancellationToken);
+        await sourceFileStream.CopyToAsync(destFileStream, 1024, cancellationToken);
         return cachedFilepath;
     }
 }
