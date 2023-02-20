@@ -53,14 +53,26 @@ public class GitRepositoryTests
         new ServiceCollection()
         .AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GitRepository>())
         .AddTransient<IRequestHandler<InitializeCommand>>(sp => _initializeHandlerMock.Object)
-        .AddTransient<IRequestHandler<PullChangesCommand>>(sp => _pullHandlerMock.Object)
+        //.AddTransient<IRequestHandler<PullChangesCommand>>(sp => _pullHandlerMock.Object)
         //.AddTransient<IRequestHandler<AddFileCommand>>(sp => _addfileHandlerMock.Object)
         //.AddTransient<IRequestHandler<CacheFileCommand, string>>(sp => _cacheHandlerMock.Object)
-        .AddTransient<IRequestHandler<PushCommand>>(sp => _pushHandlerMock.Object)
-        .AddTransient<IRequestHandler<StageAndCommitCommand, Commit>>(sp => _stageHandlerMock.Object)
-        .AddTransient<IRequestHandler<RollbackCommand>>(sp => _rollbackHandlerMock.Object)
+        //.AddTransient<IRequestHandler<PushCommand>>(sp => _pushHandlerMock.Object)
+        //.AddTransient<IRequestHandler<StageAndCommitCommand, Commit>>(sp => _stageHandlerMock.Object)
+        //.AddTransient<IRequestHandler<RollbackCommand>>(sp => _rollbackHandlerMock.Object)
         .BuildServiceProvider();
-          
+
+
+    [SetUp]
+    public void ClearDirectories()
+    {
+        if(Directory.Exists(REPOSITORY_PATH))
+            Directory.Delete(REPOSITORY_PATH, true);
+        if (Directory.Exists(REMOTE_REPOSITORY_PATH))
+            Directory.Delete(REMOTE_REPOSITORY_PATH, true);
+
+        Directory.CreateDirectory(REPOSITORY_PATH);
+        Directory.CreateDirectory(REMOTE_REPOSITORY_PATH);
+    }
     [SetUp]
     public void SetupMocks()
     {
@@ -75,7 +87,8 @@ public class GitRepositoryTests
         _initializeHandlerMock.Setup(x => x.Handle(It.IsAny<InitializeCommand>(), default))
             .Returns(() =>
             {
-                Repository.Init(REPOSITORY_PATH, true);
+                var path = Repository.Init(REMOTE_REPOSITORY_PATH, true);                
+                Repository.Clone(path, REPOSITORY_PATH);
                 return Task.CompletedTask;
             });
     }

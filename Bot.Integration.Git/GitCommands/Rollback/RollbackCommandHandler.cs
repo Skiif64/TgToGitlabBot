@@ -11,9 +11,10 @@ internal class RollbackCommandHandler : IGitCommandHandler<RollbackCommand>
         {
             await ReturnCachedToOriginalPositionAsync(request.Filepath, request.CachedFilepath, cancellationToken);
             File.Delete(request.CachedFilepath);
-        }
-        if (!request.EmptyCommit)
-            Commands.Unstage(request.Repository, request.CachedFilepath);
+
+            if (!request.EmptyCommit)
+                Commands.Unstage(request.Repository, request.CachedFilepath);
+        }        
     }
 
     private static async Task ReturnCachedToOriginalPositionAsync(string originalFilepath, string cachedFilepath,
