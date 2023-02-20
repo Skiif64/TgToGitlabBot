@@ -1,15 +1,11 @@
-﻿using Bot.Integration.Git.GitCommands.AddFile;
-using Bot.Integration.Git.GitCommands.CacheFile;
+﻿using Bot.Core.Entities;
 using Bot.Integration.Git.GitCommands.Initialize;
 using Bot.Integration.Git.GitCommands.PullChanges;
 using Bot.Integration.Git.GitCommands.Push;
-using Bot.Integration.Git.GitCommands.Rollback;
-using Bot.Integration.Git.GitCommands.StageAndCommit;
+using Bot.Integration.Git.Tests.Mocks;
 using LibGit2Sharp;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using System.Runtime.CompilerServices;
 
 namespace Bot.Integration.Git.Tests;
 
@@ -19,7 +15,7 @@ public class GitRepositoryTests
     private const string REMOTE_REPOSITORY_PATH = "git-remote-test-repository";
     private readonly GitRepository _repository;    
     private readonly IServiceProvider _serviceProvider;
-    private readonly ISender _sender;
+    private readonly ISender _sender;    
 
     public GitRepositoryTests()
     {
@@ -36,7 +32,7 @@ public class GitRepositoryTests
             Branch = "master",
             FilePath = null,
             LocalPath = REPOSITORY_PATH,
-            Url = Path.Combine(Environment.CurrentDirectory, REMOTE_REPOSITORY_PATH)
+            Url = "file:///"+Path.Combine(Environment.CurrentDirectory, REMOTE_REPOSITORY_PATH)
         });
         _repository = new GitRepository(_sender, options);
     }
@@ -44,6 +40,12 @@ public class GitRepositoryTests
     private IServiceProvider SetupServiceProvider() =>
         new ServiceCollection()
         .AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GitRepository>())
+        .AddTransient<IRequestHandler<InitializeCommand>>
+        (sp => CommandHandlersMocks.InitializeHandlerMock(REPOSITORY_PATH).Object)
+        .AddTransient<IRequestHandler<PullChangesCommand>>
+        (sp => CommandHandlersMocks.PullChangesHandlerMock().Object)
+        .AddTransient<IRequestHandler<PushCommand>>
+        (sp => CommandHandlersMocks.PushHandlerMock().Object)
         .BuildServiceProvider();
 
     [SetUp]
@@ -51,16 +53,28 @@ public class GitRepositoryTests
     {
         if(Directory.Exists(REPOSITORY_PATH))
             Directory.Delete(REPOSITORY_PATH, true);
-        if(Directory.Exists(REMOTE_REPOSITORY_PATH))
-            Directory.Delete(REMOTE_REPOSITORY_PATH, true);
+       
+        Directory.CreateDirectory(REPOSITORY_PATH);        
+    }
 
-        Directory.CreateDirectory(REPOSITORY_PATH);
-        Directory.CreateDirectory(REMOTE_REPOSITORY_PATH);
+    [TestCase("UTF-8-BIG.txt")]
+    [TestCase("UTF-8.txt")]
+    [TestCase("WINDOWS-1251.txt")]
+    public async Task WhenCommitValidFile_ThenShouldReturnSuccessResult(string filename)
+    {
+        var filepath = $"Fixtures/{filename}";
+        var info = new CommitInfo
+        {
+            FromChatId = 1,
+            FileName = filename,
+            Content = File.OpenRead(filepath),
+            Message = "Test-commit"
+        };
 
-        Repository.Init(REMOTE_REPOSITORY_PATH);
-        
-        
-        
+        var result = await _repository.CommitFileAndPushAsync(info, default);
+
+        Assert.IsNotNull(result);
+        Assert.IsTrue(result);
     }
 
 

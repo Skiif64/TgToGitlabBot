@@ -18,6 +18,8 @@ using Microsoft.Extensions.Options;
 using System.IO;
 using System.Runtime.CompilerServices;
 
+
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 [assembly: InternalsVisibleTo("Bot.Integration.Git.Tests")]
 namespace Bot.Integration.Git;
 
