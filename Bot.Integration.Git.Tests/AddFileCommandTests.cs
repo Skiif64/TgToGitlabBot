@@ -1,13 +1,12 @@
 ﻿using Bot.Integration.Git.GitCommands.AddFile;
 using Bot.Integration.Git.Tests;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Bot.Git.Tests;
 
 public class AddFileCommandTests
 {
-    private const string REPOSITORY_PATH = "test-repository";
+    private const string REPOSITORY_PATH = "addfile-test-repository";
     
     public AddFileCommandTests()
     {
