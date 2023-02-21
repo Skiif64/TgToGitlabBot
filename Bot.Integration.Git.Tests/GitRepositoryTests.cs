@@ -17,10 +17,10 @@ namespace Bot.Integration.Git.Tests;
 public class GitRepositoryTests
 {
     private const string REPOSITORY_PATH = "git-test-repository";
-    private const string REMOTE_REPOSITORY_PATH = "git-remote-test-repository";
-    private readonly GitRepository _repository;    
+    private const string REMOTE_REPOSITORY_PATH = "git-remote-test-repository";        
     private readonly IServiceProvider _serviceProvider;
     private readonly ISender _sender;
+    private readonly GitOptions _options;
 
     private readonly Mock<IRequestHandler<InitializeCommand>> _initializeHandlerMock = new();
     private readonly Mock<IRequestHandler<AddFileCommand>> _addfileHandlerMock = new();
@@ -33,20 +33,19 @@ public class GitRepositoryTests
     {
         _serviceProvider = SetupServiceProvider();
         _sender = new Mediator(_serviceProvider);
-        var options = new GitOptions
+        _options = new GitOptions
         {
             Username = "test-user",
             Email = "test@email.com"
         };
-        options.ChatOptions.Add("1", new GitOptionsSection
+        _options.ChatOptions.Add("1", new GitOptionsSection
         {
             AccessToken = "token",
             Branch = "master",
             FilePath = null,
             LocalPath = REPOSITORY_PATH,
-            Url = "file:///"+Path.Combine(Environment.CurrentDirectory, REMOTE_REPOSITORY_PATH)
-        });
-        _repository = new GitRepository(_sender, options);
+            Url = "file:///"+Path.Combine(Environment.CurrentDirectory, REMOTE_REPOSITORY_PATH)           
+        });        
     }
 
     private IServiceProvider SetupServiceProvider() =>
@@ -72,6 +71,10 @@ public class GitRepositoryTests
 
         Directory.CreateDirectory(REPOSITORY_PATH);
         Directory.CreateDirectory(REMOTE_REPOSITORY_PATH);
+        var path = Repository.Init(REMOTE_REPOSITORY_PATH, true);
+        //using var repo = new Repository(path);
+        //var signature = new Signature(_options.Username, _options.Email, DateTimeOffset.UtcNow);
+        //repo.Commit("Initial", signature, signature, new CommitOptions { AllowEmptyCommit= true });
     }
     [SetUp]
     public void SetupMocks()
@@ -81,7 +84,7 @@ public class GitRepositoryTests
         _cacheHandlerMock.Reset();
         _pullHandlerMock.Reset();
         _pushHandlerMock.Reset();
-        _addfileHandlerMock.Reset();
+        _stageHandlerMock.Reset();
         _rollbackHandlerMock.Reset();
 
         _initializeHandlerMock.Setup(x => x.Handle(It.IsAny<InitializeCommand>(), default))
@@ -106,8 +109,8 @@ public class GitRepositoryTests
             Content = File.OpenRead(filepath),
             Message = "Test-commit"
         };
-
-        var result = await _repository.CommitFileAndPushAsync(info, default);
+        var repository = new GitRepository(_sender, _options);
+        var result = await repository.CommitFileAndPushAsync(info, default);
 
         Assert.IsNotNull(result);
         Assert.IsTrue(result);        
