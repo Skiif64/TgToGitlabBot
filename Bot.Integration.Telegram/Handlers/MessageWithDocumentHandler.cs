@@ -75,7 +75,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             }
             else
             {
-                throw new Exception("Unknown behavior");
+                throw new InvalidOperationException("Unknown behavior");
             }
         }
     }
@@ -114,17 +114,15 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             throw new ApiRequestException("File path is empty", 400);
         if (client.LocalBotServer)
         {
-            var fs = new FileStream(fileInfo.FilePath, FileMode.Open);
-            return fs;
+            var fileStream = new FileStream(fileInfo.FilePath, FileMode.Open);
+            return fileStream;
         }
         else
         {
-            await using (var stream = new MemoryStream())
-            {
-                await client.DownloadFileAsync(fileInfo.FilePath, stream, cancellationToken);
-                stream.Position = 0;
-                return stream;
-            }
+            var stream = new MemoryStream();
+            await client.DownloadFileAsync(fileInfo.FilePath, stream, cancellationToken);
+            stream.Position = 0;
+            return stream;
         }
 
     }
