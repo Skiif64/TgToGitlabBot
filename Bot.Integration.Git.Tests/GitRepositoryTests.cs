@@ -1,12 +1,6 @@
 ﻿using Bot.Core.Entities;
-using Bot.Core.ResultObject;
-using Bot.Integration.Git.GitCommands.AddFile;
-using Bot.Integration.Git.GitCommands.CacheFile;
 using Bot.Integration.Git.GitCommands.Initialize;
 using Bot.Integration.Git.GitCommands.PullChanges;
-using Bot.Integration.Git.GitCommands.Push;
-using Bot.Integration.Git.GitCommands.Rollback;
-using Bot.Integration.Git.GitCommands.StageAndCommit;
 using LibGit2Sharp;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
