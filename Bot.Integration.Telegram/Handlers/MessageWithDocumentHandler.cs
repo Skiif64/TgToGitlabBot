@@ -4,6 +4,7 @@ using Bot.Core.Exceptions;
 using Bot.Core.ResultObject;
 using Bot.Integration.Telegram.Handlers.Base;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -79,38 +80,40 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         }
     }
 
-    private Task HandleErrorAsync(Message data, ITelegramBotClient client, CommitInfo commitInfo, ErrorResult error, CancellationToken cancellationToken)
+    private static Task HandleErrorAsync(Message data, ITelegramBotClient client, CommitInfo commitInfo, ErrorResult error, CancellationToken cancellationToken)
     {
         return error.Exception switch
         {
             ConfigurationNotSetException => client.SendTextMessageAsync(
-             chatId: data.Chat.Id,
+            chatId: data.Chat.Id,
             text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
             $"\nДля данного чата ({data.Chat.Id}) не задана конфигурация.",
             replyToMessageId: data.MessageId,
             cancellationToken: cancellationToken
                 ),
             GitException ex => client.SendTextMessageAsync(
-         chatId: data.Chat.Id,
-        text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
-        $"\nОшибка Git: {ex.Message}",
-        replyToMessageId: data.MessageId,
-        cancellationToken: cancellationToken
-        ),
+            chatId: data.Chat.Id,
+            text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
+            $"\nОшибка Git: {ex.Message}",
+            replyToMessageId: data.MessageId,
+            cancellationToken: cancellationToken
+                ),
             _ => client.SendTextMessageAsync(
                  chatId: data.Chat.Id,
-                text: $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
-                replyToMessageId: data.MessageId,
-                cancellationToken: cancellationToken
-                    )
-        };        
+                 text: $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
+                 replyToMessageId: data.MessageId,
+                 cancellationToken: cancellationToken
+                     )
+        };
     }
 
-    private async Task<Stream> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
+    private static async Task<Stream> DownloadFileAsync(ITelegramBotClient client, Document document, CancellationToken cancellationToken)
     {
+        var fileInfo = await client.GetFileAsync(document.FileId, cancellationToken);
+        if (fileInfo.FilePath is null)
+            throw new ApiRequestException("File path is empty", 400);
         if (client.LocalBotServer)
         {
-            var fileInfo = await client.GetFileAsync(document.FileId, cancellationToken);
             var fs = new FileStream(fileInfo.FilePath, FileMode.Open);
             return fs;
         }
@@ -118,7 +121,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         {
             await using (var stream = new MemoryStream())
             {
-                await client.GetInfoAndDownloadFileAsync(document.FileId, stream, cancellationToken);                
+                await client.DownloadFileAsync(fileInfo.FilePath, stream, cancellationToken);
                 stream.Position = 0;
                 return stream;
             }
