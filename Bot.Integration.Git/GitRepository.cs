@@ -3,45 +3,50 @@ using Bot.Core.Entities;
 using Bot.Core.Exceptions;
 using Bot.Core.ResultObject;
 using Bot.Integration.Git.GitCommands;
+using Bot.Integration.Git.GitCommands.AddFile;
+using Bot.Integration.Git.GitCommands.CacheFile;
+using Bot.Integration.Git.GitCommands.Initialize;
+using Bot.Integration.Git.GitCommands.PullChanges;
+using Bot.Integration.Git.GitCommands.Push;
+using Bot.Integration.Git.GitCommands.Rollback;
+using Bot.Integration.Git.GitCommands.StageAndCommit;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Test.CMD")]
+
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+[assembly: InternalsVisibleTo("Bot.Integration.Git.Tests")]
 namespace Bot.Integration.Git;
 
 internal class GitRepository : IGitlabService
 {
     private readonly GitOptions _options;
     private readonly ILogger<GitRepository>? _logger;
+    private readonly ISender _sender;
     private CredentialsHandler _credentialsHandler = null!;
     private Identity _identity;
     private bool _initialized;
-    public GitRepository(GitOptions options, ILogger<GitRepository>? logger = null)
+    public GitRepository(ISender sender, GitOptions options, ILogger<GitRepository>? logger = null)
     {
+        _sender = sender;
         _options = options;
         _logger = logger;
         _identity = new Identity(_options.Username, _options.Email);
 
     }
 
-    public GitRepository(IOptionsSnapshot<GitOptions> options, ILogger<GitRepository>? logger = null)
-        : this(options.Value, logger)
+    public GitRepository(ISender sender, IOptionsSnapshot<GitOptions> options, ILogger<GitRepository>? logger = null)
+        : this(sender, options.Value, logger)
     {
 
     }
 
-    public async Task<Result<bool>> CommitFileAndPushAsync(CommitInfo file, CancellationToken cancellationToken = default)
-    {
-        return await Task
-            .Factory
-            .StartNew(() => CommitFileAndPush(file), cancellationToken);
-    }
-
-    public Result<bool> CommitFileAndPush(CommitInfo info)
+    public async Task<Result<bool>> CommitFileAndPushAsync(CommitInfo info, CancellationToken cancellationToken = default)
     {
         if (!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
         {
@@ -49,43 +54,45 @@ internal class GitRepository : IGitlabService
             return new ErrorResult<bool>(new ConfigurationNotSetException(info.FromChatId));
         }
 
-        Repository repository = null!;
         string filepath = string.Empty;
         string repositoryFilepath = string.Empty;
         string? cachedFilepath = null;
+
+        if (!_initialized)
+        {
+            _credentialsHandler = (url, user, type) => new UsernamePasswordCredentials
+            {
+                Username = _options.Username,
+                Password = optionsSection.AccessToken
+            };
+            await _sender.Send(new InitializeCommand(optionsSection, _credentialsHandler),
+                cancellationToken);
+            _initialized = true;
+        }
+        using var repository = new Repository(optionsSection.LocalPath);
         try
         {
-            if (!_initialized)
-            {
-                _credentialsHandler = (url, user, type) => new UsernamePasswordCredentials
-                {
-                    Username = _options.Username,
-                    Password = optionsSection.AccessToken
-                };
-                new InitializeCommand(optionsSection, _credentialsHandler)
-                     .Execute(null!);
-                _initialized = true;
-            }
-            repository = new Repository(optionsSection.LocalPath);
-
             var signature = new Signature(_identity, DateTimeOffset.UtcNow);
 
-            filepath = optionsSection.FilePath is not null
-                ? filepath = Path.Combine(optionsSection.FilePath, info.FileName)
-                : filepath = info.FileName;
+            if (!TryFindExistingFile(optionsSection.LocalPath, info.FileName, out filepath))
+            {
+                filepath = optionsSection.FilePath is not null
+                    ? filepath = Path.Combine(optionsSection.FilePath, info.FileName)
+                    : filepath = info.FileName;
+            }
             repositoryFilepath = Path.Combine(optionsSection.LocalPath, filepath);
             if (File.Exists(repositoryFilepath))
-                cachedFilepath = new CacheFileCommand(repositoryFilepath)
-                    .Execute(repository);
+                cachedFilepath = await _sender.Send(new CacheFileCommand(repositoryFilepath),
+                    cancellationToken);
 
-            new PullChangesCommand(signature, _credentialsHandler)
-                .Execute(repository);
-            new AddFileCommand(info.Content!, repositoryFilepath)
-                .Execute(repository);
-            new StageAndCommitCommand(filepath, info.Message, signature)
-                .Execute(repository);
-            new PushCommand(optionsSection, _credentialsHandler)
-                .Execute(repository);
+            await _sender.Send(new PullChangesCommand(repository, signature, _credentialsHandler),
+                cancellationToken);
+            await _sender.Send(new AddFileCommand(info.Content!, repositoryFilepath),
+                cancellationToken);
+            await _sender.Send(new StageAndCommitCommand(repository, filepath, info.Message, signature),
+                cancellationToken);
+            await _sender.Send(new PushCommand(repository, _credentialsHandler, optionsSection.Branch),
+                cancellationToken);
 
             if (cachedFilepath != null)
                 File.Delete(cachedFilepath);
@@ -93,19 +100,31 @@ internal class GitRepository : IGitlabService
         catch (LibGit2SharpException exception)
         {
             if (repository is not null)
-                new RollbackCommand(repositoryFilepath, cachedFilepath, exception is EmptyCommitException)
-                    .Execute(repository);
+                await _sender.Send(new RollbackCommand(repository,
+                    repositoryFilepath, cachedFilepath,
+                    exception is EmptyCommitException),
+                    cancellationToken);
+
             _logger?.LogError($"Exception occured while commiting file: {exception}");
             return new ErrorResult<bool>(HandleLibGitException(exception));
-        }
-        finally
-        {
-            repository?.Dispose();
         }
         _logger?.LogInformation($"Succesufully commited and push file {info.FileName}to project {optionsSection.Url}, branch {optionsSection.Branch}");
         return new SuccessResult<bool>(true);
     }
 
+    private static bool TryFindExistingFile(string currentFilepath, string fileName, out string filepath)
+    {
+        var directoryInfo = new DirectoryInfo(currentFilepath);
+        var infos = directoryInfo.GetFileSystemInfos(fileName, SearchOption.AllDirectories);
+        if (infos.Any())
+        {
+            var info = infos.First(x => x.Name == fileName);
+           filepath = Path.GetRelativePath(currentFilepath, info.FullName);
+            return true;
+        }
+        filepath = string.Empty;
+        return false;
+    }
 
     private Exception HandleLibGitException(LibGit2SharpException exception)
     {

@@ -1,6 +1,5 @@
 using Bot.Integration.Git;
 using Bot.Integration.Telegram;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
