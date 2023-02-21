@@ -27,8 +27,8 @@ public static class DependencyInjection
                             token: options.BotToken
                             );
         });
-
-        services.AddTransient<ITelegramBotClient, TelegramBotClientWrapper>();
+        services.AddHttpClient<TelegramBotClient>();
+        services.AddTransient<ITelegramBotClient, TelegramBotClient>();
         services.AddSingleton<IUpdateHandler, TelegramBotUpdateHandler>();
         services.AddHostedService<TelegramBot>();
         services.AddTransient<IHandler<Message>, MessageWithDocumentHandler>();
