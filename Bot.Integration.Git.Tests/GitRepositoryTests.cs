@@ -89,13 +89,13 @@ public class GitRepositoryTests
         _stageHandlerMock.Reset();
         _rollbackHandlerMock.Reset();
 
-        _initializeHandlerMock.Setup(x => x.Handle(It.IsAny<InitializeCommand>(), default))
+        _initializeHandlerMock.Setup(x => x.Handle(It.IsAny<InitializeCommand>(), default))            
             .Returns(() =>
             {
                 var path = Repository.Init(REMOTE_REPOSITORY_PATH, true);                
                 Repository.Clone(path, REPOSITORY_PATH);
                 return Task.CompletedTask;
-            });
+            }); 
     }
 
     [TestCase("UTF-8-BIG.txt")]
@@ -118,6 +118,78 @@ public class GitRepositoryTests
         Assert.IsNotNull(result);
         Assert.IsTrue(result);        
         _rollbackHandlerMock.Verify(x => x.Handle(It.IsAny<RollbackCommand>(), default), Times.Never);
+    }
+
+    [TestCase("UTF-8-BIG.txt")]
+    [TestCase("UTF-8.txt")]
+    [TestCase("WINDOWS-1251.txt")]
+    public async Task WhenOverrideCommit_ThenShouldReturnSuccessResult(string filename)
+    {
+        var filepath = $"Fixtures/{filename}";
+        var overrideFilepath = $"Fixtures/Overrides/{filename}";
+        await using var file = File.OpenRead(filepath);
+        await using var overrideFile = File.OpenRead(overrideFilepath);
+        var info = new CommitInfo
+        {
+            FromChatId = 1,
+            FileName = filename,
+            Content = file,
+            Message = "Test-commit"
+        };
+        var overrideInfo = new CommitInfo
+        {
+            FromChatId = 1,
+            FileName = filename,
+            Content = overrideFile,
+            Message = "Test-override-commit"
+        };
+        var repository = new GitRepository(_sender, _options);        
+
+        var commitResult = await repository.CommitFileAndPushAsync(info, default);       
+        var overrideCommitResult = await repository.CommitFileAndPushAsync(overrideInfo, default);        
+       
+        Assert.IsNotNull(commitResult);
+        Assert.IsNotNull(overrideCommitResult);
+        Assert.IsTrue(commitResult);
+        Assert.IsTrue(overrideCommitResult);        
+    }
+
+    [TestCase("UTF-8-BIG.txt")]
+    [TestCase("UTF-8.txt")]
+    [TestCase("WINDOWS-1251.txt")]
+    public async Task WhenOverrideCommitFailureOnPush_ThenFileShouldNotChangedReturnErrorResultAndHashHasBeenSame(string filename)
+    {
+        var filepath = $"Fixtures/{filename}";
+        var overrideFilepath = $"Fixtures/Overrides/{filename}";
+        await using var file = File.OpenRead(filepath);
+        await using var overrideFile = File.OpenRead(overrideFilepath);
+        var info = new CommitInfo
+        {
+            FromChatId = 1,
+            FileName = filename,
+            Content = file,
+            Message = "Test-commit"
+        };
+        var overrideInfo = new CommitInfo
+        {
+            FromChatId = 1,
+            FileName = filename,
+            Content = overrideFile,
+            Message = "Test-override-commit"
+        };
+        var repository = new GitRepository(_sender, _options);
+        var expectedHash = Hasher.GetHashString(filepath);
+
+        var commitResult = await repository.CommitFileAndPushAsync(info, default);
+        ForceDeleteDirectory(REMOTE_REPOSITORY_PATH); //For throwing exception on push
+        var overrideCommitResult = await repository.CommitFileAndPushAsync(overrideInfo, default);
+        
+        var actualHash = Hasher.GetHashString(Path.Combine(REPOSITORY_PATH, filename));
+        Assert.IsNotNull(commitResult);
+        Assert.IsNotNull(overrideCommitResult);
+        Assert.IsTrue(commitResult);
+        Assert.IsFalse(overrideCommitResult);
+        Assert.That(actualHash, Is.EqualTo(expectedHash));
     }
 
     private static void ForceDeleteDirectory(string path)
