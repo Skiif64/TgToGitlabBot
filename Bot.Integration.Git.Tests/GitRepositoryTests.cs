@@ -22,13 +22,9 @@ public class GitRepositoryTests
     private readonly ISender _sender;
     private readonly GitOptions _options;
 
-    private readonly Mock<IRequestHandler<InitializeCommand>> _initializeHandlerMock = new();
-    private readonly Mock<IRequestHandler<AddFileCommand>> _addfileHandlerMock = new();
-    private readonly Mock<IRequestHandler<CacheFileCommand, string>> _cacheHandlerMock = new();
+    private readonly Mock<IRequestHandler<InitializeCommand>> _initializeHandlerMock = new();    
     private readonly Mock<IRequestHandler<PullChangesCommand>> _pullHandlerMock = new();
-    private readonly Mock<IRequestHandler<PushCommand>> _pushHandlerMock = new();
-    private readonly Mock<IRequestHandler<RollbackCommand>> _rollbackHandlerMock = new();
-    private readonly Mock<IRequestHandler<StageAndCommitCommand, Commit>> _stageHandlerMock = new();
+    
     public GitRepositoryTests()
     {
         _serviceProvider = SetupServiceProvider();
@@ -51,13 +47,8 @@ public class GitRepositoryTests
     private IServiceProvider SetupServiceProvider() =>
         new ServiceCollection()
         .AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GitRepository>())
-        .AddTransient<IRequestHandler<InitializeCommand>>(sp => _initializeHandlerMock.Object)
-        .AddTransient<IRequestHandler<PullChangesCommand>>(sp => _pullHandlerMock.Object)
-        //.AddTransient<IRequestHandler<AddFileCommand>>(sp => _addfileHandlerMock.Object)
-        //.AddTransient<IRequestHandler<CacheFileCommand, string>>(sp => _cacheHandlerMock.Object)
-        //.AddTransient<IRequestHandler<PushCommand>>(sp => _pushHandlerMock.Object)
-        //.AddTransient<IRequestHandler<StageAndCommitCommand, Commit>>(sp => _stageHandlerMock.Object)
-        //.AddTransient<IRequestHandler<RollbackCommand>>(sp => _rollbackHandlerMock.Object)
+        .AddTransient(sp => _initializeHandlerMock.Object)
+        .AddTransient(sp => _pullHandlerMock.Object)        
         .BuildServiceProvider();
 
 
@@ -71,22 +62,12 @@ public class GitRepositoryTests
        
         Directory.CreateDirectory(REPOSITORY_PATH);
         Directory.CreateDirectory(REMOTE_REPOSITORY_PATH);
-        var path = Repository.Init(REMOTE_REPOSITORY_PATH, true);
-       
-        //using var repo = new Repository("Cloned");
-        //var signature = new Signature(_options.Username, _options.Email, DateTimeOffset.UtcNow);
-        //repo.Commit("Initial", signature, signature, new CommitOptions { AllowEmptyCommit= true });
     }
     [SetUp]
     public void SetupMocks()
     {
-        _initializeHandlerMock.Reset();
-        _addfileHandlerMock.Reset();
-        _cacheHandlerMock.Reset();
-        _pullHandlerMock.Reset();
-        _pushHandlerMock.Reset();
-        _stageHandlerMock.Reset();
-        _rollbackHandlerMock.Reset();
+        _initializeHandlerMock.Reset();        
+        _pullHandlerMock.Reset();        
 
         _initializeHandlerMock.Setup(x => x.Handle(It.IsAny<InitializeCommand>(), default))            
             .Returns(() =>
@@ -115,9 +96,8 @@ public class GitRepositoryTests
         var repository = new GitRepository(_sender, _options);
         var result = await repository.CommitFileAndPushAsync(info, default);
 
-        Assert.IsNotNull(result);
-        Assert.IsTrue(result);        
-        _rollbackHandlerMock.Verify(x => x.Handle(It.IsAny<RollbackCommand>(), default), Times.Never);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.True);                
     }
 
     [TestCase("UTF-8-BIG.txt")]
@@ -149,10 +129,10 @@ public class GitRepositoryTests
         var commitResult = await repository.CommitFileAndPushAsync(info, default);       
         var overrideCommitResult = await repository.CommitFileAndPushAsync(overrideInfo, default);        
        
-        Assert.IsNotNull(commitResult);
-        Assert.IsNotNull(overrideCommitResult);
-        Assert.IsTrue(commitResult);
-        Assert.IsTrue(overrideCommitResult);        
+        Assert.That(commitResult, Is.Not.Null);
+        Assert.That(overrideCommitResult, Is.Not.Null);
+        Assert.That(commitResult.Success, Is.True);
+        Assert.That(overrideCommitResult.Success, Is.True);        
     }
 
     [TestCase("UTF-8-BIG.txt")]
@@ -187,10 +167,10 @@ public class GitRepositoryTests
         var overrideCommitResult = await repository.CommitFileAndPushAsync(overrideInfo, default);
         
         var actualHash = Hasher.GetHashString(Path.Combine(REPOSITORY_PATH, filename));
-        Assert.IsNotNull(commitResult);
-        Assert.IsNotNull(overrideCommitResult);
-        Assert.IsTrue(commitResult);
-        Assert.IsFalse(overrideCommitResult);
+        Assert.That(commitResult, Is.Not.Null);
+        Assert.That(overrideCommitResult, Is.Not.Null);
+        Assert.That(commitResult.Success, Is.True);
+        Assert.That(overrideCommitResult.Success, Is.False);
         Assert.That(actualHash, Is.EqualTo(expectedHash));
     }
 
