@@ -100,6 +100,7 @@ public class GitRepositoryTests
     [TestCase("UTF-8-BIG.txt")]
     [TestCase("UTF-8.txt")]
     [TestCase("WINDOWS-1251.txt")]
+    [TestCase("binary.zip")]
     public async Task WhenCommitValidFile_ThenShouldReturnSuccessResult(string filename)
     {
         var filepath = $"Fixtures/{filename}";
@@ -122,6 +123,7 @@ public class GitRepositoryTests
     [TestCase("UTF-8-BIG.txt")]
     [TestCase("UTF-8.txt")]
     [TestCase("WINDOWS-1251.txt")]
+    [TestCase("binary.zip")]
     public async Task WhenOverrideCommit_ThenShouldReturnSuccessResult(string filename)
     {
         var filepath = $"Fixtures/{filename}";
@@ -156,6 +158,7 @@ public class GitRepositoryTests
     [TestCase("UTF-8-BIG.txt")]
     [TestCase("UTF-8.txt")]
     [TestCase("WINDOWS-1251.txt")]
+    [TestCase("binary.zip")]
     public async Task WhenOverrideCommitFailureOnPush_ThenFileShouldNotChangedReturnErrorResultAndHashHasBeenSame(string filename)
     {
         var filepath = $"Fixtures/{filename}";
