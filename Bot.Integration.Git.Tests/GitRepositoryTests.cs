@@ -1,4 +1,5 @@
 ﻿using Bot.Core.Entities;
+using Bot.Core.ResultObject;
 using Bot.Integration.Git.GitCommands.AddFile;
 using Bot.Integration.Git.GitCommands.CacheFile;
 using Bot.Integration.Git.GitCommands.Initialize;
@@ -52,7 +53,7 @@ public class GitRepositoryTests
         new ServiceCollection()
         .AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GitRepository>())
         .AddTransient<IRequestHandler<InitializeCommand>>(sp => _initializeHandlerMock.Object)
-        //.AddTransient<IRequestHandler<PullChangesCommand>>(sp => _pullHandlerMock.Object)
+        .AddTransient<IRequestHandler<PullChangesCommand>>(sp => _pullHandlerMock.Object)
         //.AddTransient<IRequestHandler<AddFileCommand>>(sp => _addfileHandlerMock.Object)
         //.AddTransient<IRequestHandler<CacheFileCommand, string>>(sp => _cacheHandlerMock.Object)
         //.AddTransient<IRequestHandler<PushCommand>>(sp => _pushHandlerMock.Object)
@@ -65,14 +66,15 @@ public class GitRepositoryTests
     public void ClearDirectories()
     {
         if(Directory.Exists(REPOSITORY_PATH))
-            Directory.Delete(REPOSITORY_PATH, true);
+            ForceDeleteDirectory(REPOSITORY_PATH);
         if (Directory.Exists(REMOTE_REPOSITORY_PATH))
-            Directory.Delete(REMOTE_REPOSITORY_PATH, true);
-
+            ForceDeleteDirectory(REMOTE_REPOSITORY_PATH);
+       
         Directory.CreateDirectory(REPOSITORY_PATH);
         Directory.CreateDirectory(REMOTE_REPOSITORY_PATH);
         var path = Repository.Init(REMOTE_REPOSITORY_PATH, true);
-        //using var repo = new Repository(path);
+       
+        //using var repo = new Repository("Cloned");
         //var signature = new Signature(_options.Username, _options.Email, DateTimeOffset.UtcNow);
         //repo.Commit("Initial", signature, signature, new CommitOptions { AllowEmptyCommit= true });
     }
@@ -102,11 +104,12 @@ public class GitRepositoryTests
     public async Task WhenCommitValidFile_ThenShouldReturnSuccessResult(string filename)
     {
         var filepath = $"Fixtures/{filename}";
+        await using var file = File.OpenRead(filepath);
         var info = new CommitInfo
         {
             FromChatId = 1,
             FileName = filename,
-            Content = File.OpenRead(filepath),
+            Content = file,
             Message = "Test-commit"
         };
         var repository = new GitRepository(_sender, _options);
@@ -115,5 +118,17 @@ public class GitRepositoryTests
         Assert.IsNotNull(result);
         Assert.IsTrue(result);        
         _rollbackHandlerMock.Verify(x => x.Handle(It.IsAny<RollbackCommand>(), default), Times.Never);
+    }
+
+    private static void ForceDeleteDirectory(string path)
+    {
+        var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
+
+        foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
+        {
+            info.Attributes = FileAttributes.Normal;
+        }
+
+        directory.Delete(true);
     }
 }
