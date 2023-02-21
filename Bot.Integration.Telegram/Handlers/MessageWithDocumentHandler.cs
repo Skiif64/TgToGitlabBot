@@ -68,7 +68,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         }
         else
         {
-            if (result is ErrorResult<bool> error)
+            if (result is ErrorResult error)
             {
                 await HandleErrorAsync(data, client, commitInfo, error, cancellationToken);
             }
@@ -79,7 +79,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         }
     }
 
-    private Task HandleErrorAsync(Message data, ITelegramBotClient client, CommitInfo commitInfo, ErrorResult<bool> error, CancellationToken cancellationToken)
+    private Task HandleErrorAsync(Message data, ITelegramBotClient client, CommitInfo commitInfo, ErrorResult error, CancellationToken cancellationToken)
     {
         return error.Exception switch
         {
