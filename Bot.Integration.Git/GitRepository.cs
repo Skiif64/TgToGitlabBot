@@ -74,7 +74,7 @@ internal class GitRepository : IGitlabService
         {
             var signature = new Signature(_identity, DateTimeOffset.UtcNow);
 
-            if (!TryFindExistingFile(optionsSection.LocalPath, info.FileName, out filepath))
+            if (!TryGetExistingFilePath(optionsSection.LocalPath, info.FileName, out filepath))
             {
                 filepath = optionsSection.FilePath is not null
                     ? filepath = Path.Combine(optionsSection.FilePath, info.FileName)
@@ -112,7 +112,7 @@ internal class GitRepository : IGitlabService
         return new SuccessResult();
     }
 
-    private static bool TryFindExistingFile(string currentFilepath, string fileName, out string filepath)
+    private static bool TryGetExistingFilePath(string currentFilepath, string fileName, out string filepath)
     {
         var directoryInfo = new DirectoryInfo(currentFilepath);
         var infos = directoryInfo.GetFileSystemInfos(fileName, SearchOption.AllDirectories);
@@ -126,7 +126,7 @@ internal class GitRepository : IGitlabService
         return false;
     }
 
-    private Exception HandleLibGitException(LibGit2SharpException exception)
+    private static Exception HandleLibGitException(LibGit2SharpException exception)
     {
         return exception switch
         {
