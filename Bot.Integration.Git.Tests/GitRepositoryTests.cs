@@ -7,7 +7,6 @@ using Bot.Integration.Git.GitCommands.PullChanges;
 using Bot.Integration.Git.GitCommands.Push;
 using Bot.Integration.Git.GitCommands.Rollback;
 using Bot.Integration.Git.GitCommands.StageAndCommit;
-using Bot.Integration.Git.Tests.Mocks;
 using LibGit2Sharp;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
