@@ -21,7 +21,8 @@ internal class RollbackCommandHandler : IGitCommandHandler<RollbackCommand>
         CancellationToken cancellationToken)
     {
         await using var cachedFileStream = File.OpenRead(cachedFilepath);
-        await using var destFileStream = File.OpenWrite(originalFilepath);
+        await using var destFileStream = File.Create(originalFilepath);
         await cachedFileStream.CopyToAsync(destFileStream, 1024, cancellationToken);
+        Console.WriteLine();
     }
 }
