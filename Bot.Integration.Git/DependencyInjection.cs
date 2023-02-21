@@ -9,6 +9,7 @@ public static class DependencyInjection
     {
         services.AddTransient<IGitlabService, GitRepository>();
         services.AddTransient<IConfigurationChecker, GitConfigurationChecker>();
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GitRepository>());
         return services;
     }
 }
