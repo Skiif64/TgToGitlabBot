@@ -46,12 +46,12 @@ internal class GitRepository : IGitlabService
 
     }
 
-    public async Task<Result<bool>> CommitFileAndPushAsync(CommitInfo info, CancellationToken cancellationToken = default)
+    public async Task<Result> CommitFileAndPushAsync(CommitInfo info, CancellationToken cancellationToken = default)
     {
         if (!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
         {
             _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
-            return new ErrorResult<bool>(new ConfigurationNotSetException(info.FromChatId));
+            return new ErrorResult(new ConfigurationNotSetException(info.FromChatId));
         }
 
         string filepath = string.Empty;
@@ -106,10 +106,10 @@ internal class GitRepository : IGitlabService
                     cancellationToken);
 
             _logger?.LogError($"Exception occured while commiting file: {exception}");
-            return new ErrorResult<bool>(HandleLibGitException(exception));
+            return new ErrorResult(HandleLibGitException(exception));
         }
         _logger?.LogInformation($"Succesufully commited and push file {info.FileName}to project {optionsSection.Url}, branch {optionsSection.Branch}");
-        return new SuccessResult<bool>(true);
+        return new SuccessResult();
     }
 
     private static bool TryFindExistingFile(string currentFilepath, string fileName, out string filepath)
