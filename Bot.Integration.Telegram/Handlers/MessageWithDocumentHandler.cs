@@ -50,31 +50,12 @@ internal class MessageWithDocumentHandler : IHandler<Message>
             {
                 await data.ReplyAsync(client,
                     $"Произошла ошибка при передаче файла {request.FileName}. {error.Error.Message}",
-                    cancellationToken);
-                //await HandleErrorAsync(data, client, request, error, cancellationToken);
+                    cancellationToken);                
             }
             else
             {
                 throw new InvalidOperationException("Unknown behavior");
             }
         }
-    }
-
-    private static Task HandleErrorAsync(Message data, ITelegramBotClient client, CommitRequest commitInfo, ErrorResult error, CancellationToken cancellationToken)
-    {
-        return error.Error switch
-        {
-            ConfigurationNotSetError => data.ReplyAsync(client,
-            $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
-            $"\nДля данного чата ({data.Chat.Id}) не задана конфигурация.",
-            cancellationToken),            
-            GitError ex => data.ReplyAsync(client,
-            $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
-            $"\nОшибка Git: {ex.Message}",
-            cancellationToken),           
-            _ => data.ReplyAsync(client,
-            $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
-            cancellationToken)
-        };
     }
 }
