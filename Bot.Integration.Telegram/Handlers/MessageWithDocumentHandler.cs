@@ -41,12 +41,7 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         var result = await _gitlabService.CommitFileAndPushAsync(request, cancellationToken);
         if (result.Success)
         {
-            await client.SendTextMessageAsync(
-                chatId: data.Chat.Id,
-                text: $"Файл {request.FileName} успешно отправлен!",
-                replyToMessageId: data.MessageId,
-                cancellationToken: cancellationToken
-                );
+            await data.ReplyAsync(client, $"Файл {request.FileName} успешно отправлен!", cancellationToken);            
         }
         else
         {
@@ -65,26 +60,17 @@ internal class MessageWithDocumentHandler : IHandler<Message>
     {
         return error.Exception switch
         {
-            ConfigurationNotSetException => client.SendTextMessageAsync(
-            chatId: data.Chat.Id,
-            text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
+            ConfigurationNotSetException => data.ReplyAsync(client,
+            $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
             $"\nДля данного чата ({data.Chat.Id}) не задана конфигурация.",
-            replyToMessageId: data.MessageId,
-            cancellationToken: cancellationToken
-                ),
-            GitException ex => client.SendTextMessageAsync(
-            chatId: data.Chat.Id,
-            text: $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
+            cancellationToken),            
+            GitException ex => data.ReplyAsync(client,
+            $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
             $"\nОшибка Git: {ex.Message}",
-            replyToMessageId: data.MessageId,
-            cancellationToken: cancellationToken
-                ),
-            _ => client.SendTextMessageAsync(
-                 chatId: data.Chat.Id,
-                 text: $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
-                 replyToMessageId: data.MessageId,
-                 cancellationToken: cancellationToken
-                     )
+            cancellationToken),           
+            _ => data.ReplyAsync(client,
+            $"Произошла ошибка при передаче файла {commitInfo.FileName}.",
+            cancellationToken)
         };
     }
 }
