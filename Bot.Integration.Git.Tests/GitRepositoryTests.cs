@@ -80,7 +80,7 @@ public class GitRepositoryTests
     {
         var filepath = $"Fixtures/{filename}";
         await using var file = File.OpenRead(filepath);
-        var info = new CommitInfo
+        var info = new CommitRequest
         {
             FromChatId = 1,
             FileName = filename,
@@ -104,14 +104,14 @@ public class GitRepositoryTests
         var overrideFilepath = $"Fixtures/Overrides/{filename}";
         await using var file = File.OpenRead(filepath);
         await using var overrideFile = File.OpenRead(overrideFilepath);
-        var info = new CommitInfo
+        var info = new CommitRequest
         {
             FromChatId = 1,
             FileName = filename,
             Content = file,
             Message = "Test-commit"
         };
-        var overrideInfo = new CommitInfo
+        var overrideInfo = new CommitRequest
         {
             FromChatId = 1,
             FileName = filename,
@@ -139,14 +139,14 @@ public class GitRepositoryTests
         var overrideFilepath = $"Fixtures/Overrides/{filename}";
         await using var file = File.OpenRead(filepath);
         await using var overrideFile = File.OpenRead(overrideFilepath);
-        var info = new CommitInfo
+        var info = new CommitRequest
         {
             FromChatId = 1,
             FileName = filename,
             Content = file,
             Message = "Test-commit"
         };
-        var overrideInfo = new CommitInfo
+        var overrideInfo = new CommitRequest
         {
             FromChatId = 1,
             FileName = filename,

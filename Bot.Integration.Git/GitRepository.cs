@@ -46,7 +46,7 @@ internal class GitRepository : IGitlabService
 
     }
 
-    public async Task<Result> CommitFileAndPushAsync(CommitInfo info, CancellationToken cancellationToken = default)
+    public async Task<Result> CommitFileAndPushAsync(CommitRequest info, CancellationToken cancellationToken = default)
     {
         if (!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
         {
