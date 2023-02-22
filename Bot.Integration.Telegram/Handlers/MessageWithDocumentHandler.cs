@@ -1,5 +1,6 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
+using Bot.Core.Errors;
 using Bot.Core.Exceptions;
 using Bot.Core.ResultObject;
 using Bot.Integration.Telegram.CommitFactories;
@@ -47,7 +48,10 @@ internal class MessageWithDocumentHandler : IHandler<Message>
         {
             if (result is ErrorResult error)
             {
-                await HandleErrorAsync(data, client, request, error, cancellationToken);
+                await data.ReplyAsync(client,
+                    $"Произошла ошибка при передаче файла {request.FileName}. {error.Error.Message}",
+                    cancellationToken);
+                //await HandleErrorAsync(data, client, request, error, cancellationToken);
             }
             else
             {
@@ -58,13 +62,13 @@ internal class MessageWithDocumentHandler : IHandler<Message>
 
     private static Task HandleErrorAsync(Message data, ITelegramBotClient client, CommitRequest commitInfo, ErrorResult error, CancellationToken cancellationToken)
     {
-        return error.Exception switch
+        return error.Error switch
         {
-            ConfigurationNotSetException => data.ReplyAsync(client,
+            ConfigurationNotSetError => data.ReplyAsync(client,
             $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
             $"\nДля данного чата ({data.Chat.Id}) не задана конфигурация.",
             cancellationToken),            
-            GitException ex => data.ReplyAsync(client,
+            GitError ex => data.ReplyAsync(client,
             $"Произошла ошибка при передаче файла {commitInfo.FileName}." +
             $"\nОшибка Git: {ex.Message}",
             cancellationToken),           

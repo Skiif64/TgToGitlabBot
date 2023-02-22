@@ -1,5 +1,6 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
+using Bot.Core.Errors;
 using Bot.Core.Exceptions;
 using Bot.Core.ResultObject;
 using Bot.Integration.Git.GitCommands;
@@ -51,7 +52,7 @@ internal class GitRepository : IGitlabService
         if (!_options.ChatOptions.TryGetValue(info.FromChatId.ToString(), out var optionsSection))
         {
             _logger?.LogWarning($"Configuration for chat {info.FromChatId} is not set!");
-            return new ErrorResult(new ConfigurationNotSetException(info.FromChatId));
+            return new ErrorResult(new ConfigurationNotSetError(info.FromChatId));
         }
 
         string filepath = string.Empty;
@@ -126,12 +127,12 @@ internal class GitRepository : IGitlabService
         return false;
     }
 
-    private static Exception HandleLibGitException(LibGit2SharpException exception)
+    private static Error HandleLibGitException(LibGit2SharpException exception)
     {
         return exception switch
         {
-            EmptyCommitException => new GitException("Пустой коммит, возможно в файле отсутствуют какие-либо изменения"),
-            _ => new GitException("Ошибка Git")
+            EmptyCommitException => new EmptyCommitError(),
+            _ => new GitError()
         };
     }
 }

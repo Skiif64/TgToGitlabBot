@@ -1,4 +1,6 @@
-﻿namespace Bot.Core.ResultObject;
+﻿using Bot.Core.Errors;
+
+namespace Bot.Core.ResultObject;
 
 public abstract class Result
 {
@@ -37,23 +39,23 @@ public class SuccessResult<T> : Result<T>
 
 public class ErrorResult : Result
 {
-    public Exception Exception { get; }   
+    public Error Error { get; }   
 
-    public ErrorResult(Exception exception)
+    public ErrorResult(Error error)
     {       
         Success = false;
-        Exception = exception;
+        Error = error;
     }
     
 }
 
 public class ErrorResult<T> : Result<T>
 {
-    public Exception Exception { get; }
-    public ErrorResult(Exception exception) : base(default)
+    public Error Error { get; }
+    public ErrorResult(Error error) : base(default)
     {
         
         Success = false;
-        Exception = exception;
+        Error = error;
     }      
 }
