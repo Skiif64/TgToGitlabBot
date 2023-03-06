@@ -1,9 +1,7 @@
 ﻿using Bot.Core.Abstractions;
 using Bot.Core.Entities;
 using Bot.Core.Errors;
-using Bot.Core.Exceptions;
 using Bot.Core.ResultObject;
-using Bot.Integration.Git.GitCommands;
 using Bot.Integration.Git.GitCommands.AddFile;
 using Bot.Integration.Git.GitCommands.CacheFile;
 using Bot.Integration.Git.GitCommands.Initialize;
@@ -16,7 +14,6 @@ using LibGit2Sharp.Handlers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.IO;
 using System.Runtime.CompilerServices;
 
 

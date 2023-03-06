@@ -1,12 +1,8 @@
 ﻿using Bot.Core.Abstractions;
-using Bot.Core.Entities;
-using Bot.Core.Errors;
-using Bot.Core.Exceptions;
 using Bot.Core.ResultObject;
 using Bot.Integration.Telegram.CommitFactories;
 using Bot.Integration.Telegram.Handlers.Base;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
