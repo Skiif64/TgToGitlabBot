@@ -1,4 +1,4 @@
-﻿namespace Bot.Integration.Telegram;
+﻿namespace Bot.Integration.Telegram.Utils;
 
 internal class FileTypeDetector : IDisposable
 {
@@ -76,7 +76,7 @@ internal class FileTypeDetector : IDisposable
 
     private static bool IsControlChar(int ch)
     {
-        return (ch > __controlChars["NUL"] && ch < __controlChars["BS"])
-            || (ch > __controlChars["CR"] && ch < __controlChars["SUB"]);
+        return ch > __controlChars["NUL"] && ch < __controlChars["BS"]
+            || ch > __controlChars["CR"] && ch < __controlChars["SUB"];
     }
 }

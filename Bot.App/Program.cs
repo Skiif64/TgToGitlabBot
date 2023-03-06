@@ -10,7 +10,6 @@ builder.Configuration
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.Configure<GitOptions>(builder.Configuration.GetRequiredSection(GitOptions.Path));
 builder.Services.Configure<TelegramBotOptions>(builder.Configuration.GetRequiredSection(TelegramBotOptions.Path));
-builder.Services.AddTransient<HttpClient>();
 builder.Services.AddGit();
 builder.Services.AddTelegramBot();
 var app = builder.Build();

@@ -28,17 +28,15 @@ internal class StatusCommandHandler : IHandler<Message>
 
         if (_configurationChecker.Exists(chatId))
         {
-            await client.SendTextMessageAsync(
-                chatId,
-                $"Текущий id чата: {chatId}, конфигурация имеется",
-                cancellationToken: cancellationToken);
+            await data.AnswerAsync(client,
+                $"Текущий id чата: {chatId}, конфигурация имеется.",
+                cancellationToken);
         }
         else
         {
-            await client.SendTextMessageAsync(
-                chatId,
-                $"Текущий id чата: {chatId}, конфигурация отсутствует",
-                cancellationToken: cancellationToken);
+            await data.AnswerAsync(client,
+                $"Текущий id чата: {chatId}, конфигурация отсутствует.",
+                cancellationToken);
         }
     }
 }

@@ -28,14 +28,14 @@ public class AddFileCommandTests
     {
         var originalFilepath = $"Fixtures/{filename}";
         await using var stream = File.OpenRead(originalFilepath);
-        var expectedHash = Hasher.GetHashString(originalFilepath);
+        var expectedHash = Hasher.GetSHA256HashString(originalFilepath);
         var repositoryFilepath = Path.Combine(REPOSITORY_PATH, filename);
         var request = new AddFileCommand(stream, repositoryFilepath);
         var handler = new AddFileCommandHandler();
 
         await handler.Handle(request, default);
 
-        var actualhash = Hasher.GetHashString(repositoryFilepath);      
+        var actualhash = Hasher.GetSHA256HashString(repositoryFilepath);      
         Assert.That(actualhash, Is.EqualTo(expectedHash));
 
     }    
