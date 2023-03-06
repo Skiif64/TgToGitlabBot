@@ -22,13 +22,13 @@ public class CacheFileCommandTests
     {
         var originalFilepath = $"Fixtures/{filename}";
         await using var stream = File.OpenRead(originalFilepath);
-        var expectedHash = Hasher.GetHashString(originalFilepath);        
+        var expectedHash = Hasher.GetSHA256HashString(originalFilepath);        
         var request = new CacheFileCommand(originalFilepath);
         var handler = new CacheFileCommandHandler();
 
         var cachedFilepath = await handler.Handle(request, default);
 
-        var actualhash = Hasher.GetHashString(cachedFilepath);
+        var actualhash = Hasher.GetSHA256HashString(cachedFilepath);
         Assert.That(actualhash, Is.EqualTo(expectedHash));
     }
 }

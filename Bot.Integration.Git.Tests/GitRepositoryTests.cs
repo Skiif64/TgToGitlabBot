@@ -154,13 +154,13 @@ public class GitRepositoryTests
             Message = "Test-override-commit"
         };
         var repository = new GitRepository(_sender, _options);
-        var expectedHash = Hasher.GetHashString(filepath);
+        var expectedHash = Hasher.GetSHA256HashString(filepath);
 
         var commitResult = await repository.CommitFileAndPushAsync(info, default);
         ForceDeleteDirectory(REMOTE_REPOSITORY_PATH); //For throwing exception on push
         var overrideCommitResult = await repository.CommitFileAndPushAsync(overrideInfo, default);
         
-        var actualHash = Hasher.GetHashString(Path.Combine(REPOSITORY_PATH, filename));
+        var actualHash = Hasher.GetSHA256HashString(Path.Combine(REPOSITORY_PATH, filename));
         Assert.That(commitResult, Is.Not.Null);
         Assert.That(overrideCommitResult, Is.Not.Null);
         Assert.That(commitResult.Success, Is.True);
