@@ -14,7 +14,7 @@ public class MessageFormatTests
 
     [TestCase("AAAA_BBBBB_CCCCCC_v45_2022_66_02.7z", "AAAA_BBBBB_CCCCCC.7z")]
     [TestCase("AAAA_BBBBB_CCCCCC_v45.zip", "AAAA_BBBBB_CCCCCC.zip")]
-    public async Task ChannelCommitRequestFactory_CreateCommitRequest_ThenFilenameShouldBeFormatted(string filename, string expectedFilename)
+    public async Task WhenChannelCommitRequestFactory_CreateCommitRequest_ThenFilenameShouldBeFormatted(string filename, string expectedFilename)
     {
         var client = new Mock<ITelegramBotClient>().Object;
         var message = new Message
