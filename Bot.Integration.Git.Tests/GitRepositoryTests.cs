@@ -47,6 +47,7 @@ public class GitRepositoryTests
 
 
     [SetUp]
+    [TearDown]
     public void ClearDirectories()
     {
         if(Directory.Exists(REPOSITORY_PATH))
