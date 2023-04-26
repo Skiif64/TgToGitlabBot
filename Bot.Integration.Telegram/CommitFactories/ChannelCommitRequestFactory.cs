@@ -10,7 +10,7 @@ namespace Bot.Integration.Telegram.CommitFactories;
 
 internal class ChannelCommitRequestFactory : TelegramChatCommitRequestFactory
 {
-    private const string Pattern = @"_v\d+(_\d+)*.+$";
+    private const string Pattern = @"_[vV]\d+(_\d+)*.+$";
     public ChannelCommitRequestFactory(Message message, ITelegramBotClient client) 
         : base(message, client)
     {
