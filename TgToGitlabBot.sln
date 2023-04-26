@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.Integration.Git", "Bot.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot.Integration.Git.Tests", "Bot.Integration.Git.Tests\Bot.Integration.Git.Tests.csproj", "{430E972E-311B-4BA2-9021-46C327556A0B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Integration.Telegram.Tests", "Bot.Integration.Telegram.Tests\Bot.Integration.Telegram.Tests.csproj", "{050279EE-68CA-438F-8666-7B6520E6ADDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{430E972E-311B-4BA2-9021-46C327556A0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{430E972E-311B-4BA2-9021-46C327556A0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{430E972E-311B-4BA2-9021-46C327556A0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{050279EE-68CA-438F-8666-7B6520E6ADDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{050279EE-68CA-438F-8666-7B6520E6ADDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{050279EE-68CA-438F-8666-7B6520E6ADDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{050279EE-68CA-438F-8666-7B6520E6ADDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 		{C9CA48FD-1469-481B-A105-475FF1A302AB} = {38275583-2303-4B18-97F8-AB798F64645E}
 		{0E6BB990-C13E-4EF0-A5EE-528AD4906E8E} = {38275583-2303-4B18-97F8-AB798F64645E}
 		{430E972E-311B-4BA2-9021-46C327556A0B} = {202B0A89-645B-489A-B646-D75F8C389CF1}
+		{050279EE-68CA-438F-8666-7B6520E6ADDF} = {202B0A89-645B-489A-B646-D75F8C389CF1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9D6AF238-152B-4099-880F-99DECBD096FB}
