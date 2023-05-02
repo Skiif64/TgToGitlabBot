@@ -2,6 +2,7 @@
 using Bot.Core.ResultObject;
 using Bot.Integration.Telegram.CommitFactories;
 using Bot.Integration.Telegram.Handlers.Base;
+using Bot.Integration.Telegram.Utils;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -11,10 +12,12 @@ namespace Bot.Integration.Telegram.Handlers;
 internal class MessageWithDocumentHandler : IHandler<Message>
 {
     private readonly IGitlabService _gitlabService;
+    private readonly ChatLogger _logger;
 
-    public MessageWithDocumentHandler(IGitlabService gitlabService)
+    public MessageWithDocumentHandler(IGitlabService gitlabService, ChatLogger logger)
     {
         _gitlabService = gitlabService;
+        _logger = logger;
     }
 
     public bool CanHandle(Message data)
@@ -36,22 +39,6 @@ internal class MessageWithDocumentHandler : IHandler<Message>
 
         using var request = await commitFactory.CreateCommitRequestAsync(cancellationToken);
         var result = await _gitlabService.CommitFileAndPushAsync(request, cancellationToken);
-        if (result.Success)
-        {
-            await data.ReplyAsync(client, $"Файл {request.FileName} успешно отправлен!", cancellationToken);            
-        }
-        else
-        {
-            if (result is ErrorResult error)
-            {
-                await data.ReplyAsync(client,
-                    $"Произошла ошибка при передаче файла {request.FileName}. {error.Error.Message}",
-                    cancellationToken);                
-            }
-            else
-            {
-                throw new InvalidOperationException("Unknown behavior");
-            }
-        }
+        await _logger.LogAnswerAsync(result, data, request, cancellationToken);
     }
 }
