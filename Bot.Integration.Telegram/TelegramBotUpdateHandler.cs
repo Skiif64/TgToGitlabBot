@@ -39,7 +39,7 @@ internal class TelegramBotUpdateHandler : IUpdateHandler
         {
             UpdateType.Message => OnMessageRecieved(update.Message!, botClient, cancellationToken),
             UpdateType.ChannelPost => OnMessageRecieved(update.ChannelPost!, botClient, cancellationToken),
-            _ => throw new NotSupportedException($"Update type {update.Type} is not supported.")
+            _ => Task.CompletedTask
         };
         await action;
     }

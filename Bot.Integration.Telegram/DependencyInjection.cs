@@ -1,5 +1,6 @@
 ﻿using Bot.Integration.Telegram.Handlers;
 using Bot.Integration.Telegram.Handlers.Base;
+using Bot.Integration.Telegram.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -34,6 +35,7 @@ public static class DependencyInjection
         services.AddHostedService<TelegramBot>();
         services.AddTransient<IHandler<Message>, MessageWithDocumentHandler>();
         services.AddTransient<IHandler<Message>, StatusCommandHandler>();
+        services.AddScoped<ChatLogger>();
         return services;
     }
 }

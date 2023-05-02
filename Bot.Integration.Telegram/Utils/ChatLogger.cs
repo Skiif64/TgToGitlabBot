@@ -25,15 +25,15 @@ internal class ChatLogger
         if (result.Success)
         {
             await _client.SendTextMessageAsync(_options.LoggingChat,
-                $"✔ Чат: {data.Chat.Title} | Файл {request.FileName} успешно отправлен!",
+                $"✔ Чат: {data.Chat.Title} | Файл {request.FileName} успешно отправлен!",                
                 cancellationToken: cancellationToken);            
         }
         else
         {
             if (result is ErrorResult error)
-            {
+            {               
                 await _client.SendTextMessageAsync(_options.LoggingChat,
-                $"❌ Чат: {data.Chat.Title} | Произошла ошибка при передаче файла {request.FileName}. {error.Error.Message}",
+                $"❌ Чат: {data.Chat.Title} | Произошла ошибка при передаче файла {request.FileName}. {error.Error.Message}",                
                 cancellationToken: cancellationToken);
             }
             else
