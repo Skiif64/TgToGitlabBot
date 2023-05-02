@@ -7,4 +7,5 @@ public class TelegramBotOptions
     public string? BaseUrl { get; init; }
     public bool Logout { get; init; }
     public string? WebhookUrl { get; init; }
+    public long LoggingChat { get; init; }
 }

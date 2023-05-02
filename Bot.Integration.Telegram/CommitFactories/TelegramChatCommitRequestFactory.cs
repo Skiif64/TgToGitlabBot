@@ -17,7 +17,7 @@ namespace Bot.Integration.Telegram.CommitFactories
         }
         public abstract Task<CommitRequest> CreateCommitRequestAsync(CancellationToken cancellationToken);
 
-        protected virtual async Task<Stream> DownloadFileAsync(CancellationToken cancellationToken)
+        protected internal virtual async Task<Stream> DownloadFileAsync(CancellationToken cancellationToken)
         {
             var document = Message.Document!;
             var fileInfo = await Client.GetFileAsync(document.FileId, cancellationToken);
