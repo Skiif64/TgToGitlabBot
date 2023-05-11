@@ -26,7 +26,7 @@ namespace Bot.App.Controllers
         {
             if (update is null)
                 return BadRequest();
-            _logger.LogInformation("Recived message");
+            _logger.LogInformation("Recieved message.");
             try
             {
                 await _updateHandler.HandleUpdateAsync(_client, update, cancellationToken);
